@@ -16,7 +16,7 @@ Course repo for CS487 Cloud Development. Contains lectures, programming assignme
 ```bash
 git pull --ff-only
 ```
-Run this weekly — new lectures/PAs land here.
+Run this weekly — new lectures/PAs land here. You only need to run this command for the rest of the semester to get updates.
 
 ## Submitting assignments
 Your PA submissions go to a separate private repo created for you (`pa-f26-<your-username>`), not this one.
