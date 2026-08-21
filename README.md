@@ -4,7 +4,11 @@ Course repo for CS487 Cloud Development. Contains lectures, programming assignme
 
 ## Setup
 
-1. Clone this repo (do not fork — see below).
+1. Clone this repo (do not fork — see below):
+   ```bash
+   git clone https://github.com/cs487-cloud-dev/cloud-dev-f26.git
+   cd cloud-dev-f26
+   ```
 2. Install dependencies: TBD
 3. Run `git pull --ff-only` weekly to get new content.
 
