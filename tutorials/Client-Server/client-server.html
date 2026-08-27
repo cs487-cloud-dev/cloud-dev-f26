@@ -1165,6 +1165,65 @@ if __name__ == "__main__":
 <p><strong>Stretch — make §6.2 visible.</strong> Add an in-memory counter at <code>/count</code>, scale to 3 instances with affinity off, hit it twenty times, and watch the number jump around unpredictably. Explain in writing why, and describe how Azure Cache for Redis would fix it.</p>
 <p><strong>Deliverable:</strong> the live URL, a screenshot of the 301, the log excerpt showing the 502 you caused and the line that fixed it, and the counter explanation.</p>
 
+<h3>Lab 5 — Azure practice lab, from Microsoft's own materials</h3>
+
+<p>Labs 1–4 were written for this course. This one sends you to the official Microsoft Learn and AZ-204 lab material, because those are maintained by Microsoft, updated when Azure changes, and are the exact exercises the certification assumes you have done. Your job is not just to complete them — it is to <em>recognise</em> the concepts from this module inside them.</p>
+
+<div class="box key">
+  <span class="lbl">No Azure subscription yet? Start with the sandbox</span>
+  <p>Microsoft Learn modules marked with an <strong>exercise</strong> include a free <strong>sandbox</strong>: a temporary Azure subscription that activates in the browser, costs nothing, needs no credit card, and self-destructs afterwards. Use it for Part A. You will need your own subscription (Azure for Students) only from Part B onward.</p>
+</div>
+
+<h4>Part A — Guided, in the free sandbox (~90 min)</h4>
+<p>Work through these two Microsoft Learn modules end to end, doing the exercises rather than skimming the text:</p>
+<ol>
+<li><strong>Host a web application with Azure App Service</strong> — <code>learn.microsoft.com/training/modules/host-a-web-app-with-azure-app-service/</code><br>
+Creates a Web App, deploys code, and browses the result. This is §11.1 with the guardrails on.</li>
+<li><strong>Explore Azure App Service deployment slots</strong> — <code>learn.microsoft.com/training/modules/understand-app-service-deployment-slots/</code><br>
+Covers slot swapping and warm-up. This is the zero-downtime deploy from §7.3 reason 8, delivered as a managed feature instead of an Nginx upstream flip.</li>
+</ol>
+
+<h4>Part B — The official AZ-204 labs, on your own subscription (~2 hours)</h4>
+<p>These are Microsoft's instructor-led lab scripts, published openly on GitHub:</p>
+<ol>
+<li><strong>AZ-204 Lab 01 — Build a web application on a PaaS offering</strong><br>
+<code>microsoftlearning.github.io/AZ-204-DevelopingSolutionsforMicrosoftAzure/Instructions/Labs/AZ-204_lab_01.html</code><br>
+Creates a Web App and deploys via <strong>Kudu zip deploy</strong> — the diagnostic console from §11.1, used as a deployment mechanism.</li>
+<li><strong>AZ-204 Lab 08 — Create a multi-tier solution using Azure services</strong><br>
+<code>.../Instructions/Labs/AZ-204_lab_08.html</code><br>
+This is §6.1 (N-tier) and §6.4 (queues) built for real, and the most valuable single lab on this list for this course.</li>
+</ol>
+
+<h4>Part C — Follow the official docs for the pieces the labs skip</h4>
+<ul>
+<li><strong>Host a static website on Blob Storage</strong> — <code>learn.microsoft.com/azure/storage/blobs/storage-blob-static-website-host</code> (§11.2)</li>
+<li><strong>Secure an app with a custom domain and certificate</strong> — <code>learn.microsoft.com/azure/app-service/tutorial-secure-domain-certificate</code> (§9.3–9.5: managed certificate, SNI binding, forcing HTTPS)</li>
+<li><strong>Enable diagnostic logging</strong> — <code>learn.microsoft.com/azure/app-service/troubleshoot-diagnostic-logs</code> (§8.3)</li>
+<li><strong>Microsoft's own 502/503 troubleshooting guide</strong> — <code>learn.microsoft.com/azure/app-service/troubleshoot-http-502-http-503</code><br>
+Read this <em>after</em> §8.4 and compare. Microsoft's causes and ours are the same list in a different order — useful confirmation that the seven causes are not something we invented.</li>
+</ul>
+
+<h4>Concept map — where this module shows up in the official material</h4>
+<table>
+<thead><tr><th style="width:30%">This module</th><th style="width:36%">Official Azure resource</th><th>What to notice</th></tr></thead>
+<tbody>
+<tr><td>§6.2 Stateless services</td><td>Deployment slots module</td><td>Why a slot can be swapped at all — because instances are interchangeable</td></tr>
+<tr><td>§6.1 / §6.4 N-tier, queues</td><td>AZ-204 Lab 08</td><td>The tiers you drew in §6.1, as deployed resources</td></tr>
+<tr><td>§7.3 Reverse proxy</td><td>App Service architecture</td><td>You never configure one — Azure's front-end fleet <em>is</em> the proxy</td></tr>
+<tr><td>§8.3 Logs</td><td>Diagnostic logging doc</td><td>Access log vs application log, same split as Nginx</td></tr>
+<tr><td>§8.4 The 502</td><td>Microsoft 502/503 guide</td><td>Same causes, independently arrived at</td></tr>
+<tr><td>§9 TLS</td><td>Custom domain + certificate tutorial</td><td>Managed certificate = Let's Encrypt automation, run for you</td></tr>
+<tr><td>§11.2 Static hosting</td><td>Blob static website tutorial</td><td>The <code>$web</code> container and the quoting trap</td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+  <span class="lbl">Before you start — and before you walk away</span>
+  <p>Work inside <strong>one resource group per lab</strong> so cleanup is a single delete (§11). Sandbox resources vanish on their own; <strong>resources in your own subscription do not.</strong> Delete the resource group when you finish each lab, and check Cost Analysis afterwards. An AKS cluster or an idle App Service Plan left running over a weekend is a genuinely expensive mistake, and it is yours to pay.</p>
+</div>
+
+<p><strong>Deliverable:</strong> a one-page report containing (a) the sandbox completion screenshot from Part A, (b) the live URL and a screenshot of a successful slot swap, (c) for Part B Lab 08, a diagram of the tiers you deployed labelled with the §6.1 tier names, (d) three sentences on one thing the official material does differently from how this tutorial explained it, and why you think Microsoft made that choice, and (e) a screenshot of your resource groups <em>after</em> cleanup, showing they are gone.</p>
+
 <h2>13. Troubleshooting Quick Reference</h2>
 
 <table>
@@ -1236,7 +1295,8 @@ if __name__ == "__main__":
 <li><strong>TLS</strong> — Mozilla SSL config generator (<code>ssl-config.mozilla.org</code>) generates a hardened block for you; SSL Labs (<code>ssllabs.com/ssltest</code>) grades any live site A+ to F and explains every deduction — the fastest TLS education available</li>
 <li><strong>Azure</strong> — App Service overview and configuration: <code>learn.microsoft.com/azure/app-service/</code>; static websites: <code>learn.microsoft.com/azure/storage/blobs/storage-blob-static-website</code></li>
 <li><strong>Practice tools</strong> — <code>httpbin.org</code> (request sandbox), <code>jsonlint.com</code> (validator), <code>jwt.io</code> (decode a token)</li>
-<li><strong>Certification alignment</strong> — this module supports material assessed in AZ-900 (cloud concepts), AZ-104 (networking, NSGs), and AZ-204 (App Service, deployment, configuration)</li>
+<li><strong>Certification alignment</strong> — this module supports material assessed in AZ-900 (cloud concepts), AZ-104 (networking, NSGs), and AZ-204 (App Service, deployment, configuration). The full learning path is <em>Implement Azure App Service web apps</em>: <code>learn.microsoft.com/training/paths/create-azure-app-service-web-apps/</code></li>
+<li><strong>All AZ-204 lab scripts</strong> (open source, maintained by Microsoft) — <code>microsoftlearning.github.io/AZ-204-DevelopingSolutionsforMicrosoftAzure/</code></li>
 </ul>
 
 <div class="footer">
