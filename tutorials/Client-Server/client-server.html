@@ -1,0 +1,1247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Module 2 — Client–Server Software, Web &amp; FTP Servers</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Palatino", "Palatino Linotype", Georgia, serif;
+    font-size: 10.2pt; line-height: 1.45; color: #111; margin: 0;
+  }
+
+  h1, h2, h3, h4 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #123a6b; }
+  h1 { font-size: 20pt; margin: 0 0 2pt; }
+  h2 {
+    font-size: 13pt; margin: 20pt 0 6pt; padding-bottom: 3pt;
+    border-bottom: 1.2pt solid #123a6b; break-after: avoid; page-break-after: avoid;
+  }
+  h3 { font-size: 11pt; margin: 12pt 0 4pt; color: #1c4f8f; break-after: avoid; page-break-after: avoid; }
+  h4 { font-size: 10pt; margin: 9pt 0 3pt; color: #333; break-after: avoid; page-break-after: avoid; }
+  p { margin: 0 0 6pt; }
+  ul, ol { margin: 0 0 7pt; padding-left: 16pt; }
+  li { margin-bottom: 2.5pt; }
+
+  code, pre, .mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  code { font-size: 8.8pt; background: #f0f2f5; padding: 0.5pt 2.5pt; border-radius: 2px; }
+  pre {
+    font-size: 8.1pt; line-height: 1.35; background: #f6f7f9; border: 0.5pt solid #d8dde3;
+    border-left: 2.5pt solid #123a6b; border-radius: 3px; padding: 6pt 8pt; margin: 6pt 0 8pt;
+    white-space: pre-wrap; word-wrap: break-word;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 6pt 0 9pt; font-size: 8.9pt;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  th, td { border: 0.5pt solid #c8cfd6; padding: 3.5pt 5pt; text-align: left; vertical-align: top; }
+  th { background: #e8edf3; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 600; }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  td code, th code { font-size: 8.2pt; }
+
+  .box {
+    border-left: 3pt solid #123a6b; background: #eef2f8; padding: 6pt 9pt;
+    margin: 8pt 0; border-radius: 0 3px 3px 0;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .box.warn   { border-left-color: #b3541e; background: #fdf1e8; }
+  .box.key    { border-left-color: #1a7a4c; background: #eaf6ef; }
+  .box .lbl {
+    display: block; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 8.4pt; font-weight: 700; letter-spacing: 0.4pt;
+    text-transform: uppercase; color: #123a6b; margin-bottom: 3pt;
+  }
+  .box.warn .lbl { color: #b3541e; }
+  .box.key  .lbl { color: #1a7a4c; }
+  .box p:last-child, .box ul:last-child, .box ol:last-child { margin-bottom: 0; }
+
+  .titlepage { text-align: center; padding: 4pt 0 10pt; border-bottom: 1.5pt solid #123a6b; margin-bottom: 12pt; }
+  .titlepage .inst { font-size: 11pt; color: #123a6b; font-weight: 600; }
+  .titlepage .sub  { font-size: 9.2pt; color: #555; margin-top: 2pt; }
+  .titlepage .mod  { font-size: 15pt; margin-top: 8pt; color: #8a1c1c;
+                     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 600; }
+
+  .lead { font-size: 9.6pt; color: #444; font-style: italic; }
+  .ascii { font-size: 7.6pt; line-height: 1.3; }
+  .qa { margin: 0 0 7pt; }
+  .qa .q { font-weight: 600; }
+  .qa .a { color: #333; margin-left: 10pt; display: block; }
+  .footer { margin-top: 16pt; padding-top: 5pt; border-top: 0.5pt solid #c8cfd6;
+            font-size: 8.2pt; color: #666; text-align: center; font-style: italic; }
+  .avoid { break-inside: avoid; page-break-inside: avoid; }
+  a { color: #1c4f8f; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="titlepage">
+  <div class="inst">Lahore University of Management Sciences</div>
+  <div class="sub">Syed Babar Ali School of Science and Engineering</div>
+  <div class="sub">CS 487 / CS 5603 — Cloud Development · Fall 2026</div>
+  <div class="mod">Module 2 — Client–Server Software, Web &amp; FTP Servers</div>
+  <div class="sub" style="margin-top:5pt">A self-contained tutorial. No prior systems background assumed.</div>
+</div>
+
+<h2>1. Scope and Prerequisites</h2>
+
+<p>Every website, every app that shows fresh data, every "Sign in with Microsoft" button rests on one idea: <strong>one computer asks another for something and gets an answer back.</strong> This module is the detail — what the question looks like, what the answer looks like, which door it arrives at, how the conversation is kept private, and how all of it maps onto Azure.</p>
+
+<p>By the end you should be able to explain what happens between pressing Enter on a URL and seeing a page; read an HTTP exchange and say what went wrong; explain what a port is and why 443 keeps appearing; describe stateless vs stateful and why cloud platforms depend on the distinction; read an Nginx, Apache, or IIS config without panicking; diagnose a <code>502</code> from a log file; explain what a TLS certificate does and does not prove; and deploy a real application to Azure App Service.</p>
+
+<table>
+<thead><tr><th style="width:22%">Tool</th><th style="width:44%">Why</th><th>Where</th></tr></thead>
+<tbody>
+<tr><td>Browser (Chrome/Edge)</td><td>Its built-in <strong>DevTools</strong> is the single most useful debugging tool here</td><td>Already installed</td></tr>
+<tr><td><code>curl</code></td><td>Send HTTP requests by hand</td><td>Built into Windows 10+, macOS, Linux</td></tr>
+<tr><td>Azure CLI (<code>az</code>)</td><td>Drive Azure from a terminal</td><td>learn.microsoft.com/cli/azure</td></tr>
+<tr><td>Azure account</td><td>Actually deploy things</td><td>Azure for Students — free credit, no card</td></tr>
+<tr><td>VS Code</td><td>Editor</td><td>code.visualstudio.com</td></tr>
+<tr><td>Docker Desktop <em>(optional)</em></td><td>Run Nginx locally without installing it</td><td>docker.com</td></tr>
+</tbody>
+</table>
+
+<p class="lead">Where a command line is shown starting with <code>$</code>, the <code>$</code> is the prompt, not part of the command. "Terminal", "shell", and "command line" all mean the same window — PowerShell or Windows Terminal on Windows, Terminal on macOS and Linux.</p>
+
+<h2>2. The Client–Server Model</h2>
+
+<h3>2.1 The idea</h3>
+<p>Think of a restaurant. <strong>You</strong> are the client: you want food and neither know nor need to know how it is made. <strong>The kitchen</strong> is the server: it holds the ingredients, equipment, and recipes. <strong>The waiter</strong> carries a request in and a response out — a plate, or "sorry, we're out of chicken".</p>
+
+<p>Three properties carry over exactly to computers:</p>
+<ol>
+<li><strong>You never enter the kitchen.</strong> You do not know how many cooks are inside. This is <em>abstraction</em>, and it is why the cloud works at all — a provider can replace every machine overnight and you would never know.</li>
+<li><strong>One kitchen serves many tables.</strong> A server is not a special magic machine; it is a computer whose job is answering many requests.</li>
+<li><strong>You always speak first.</strong> The kitchen does not send food you did not order. In the classic model the client always initiates.</li>
+</ol>
+
+<h3>2.2 The details</h3>
+<p>A <strong>client</strong> is any program that initiates a request — your browser, a phone app, <code>curl</code>, a Python script. A <strong>server</strong> is any program that listens for requests and returns responses. Note <em>program</em>, not machine: one machine can run five servers, and one logical server can span a thousand machines.</p>
+
+<pre class="ascii">CLIENT                                          SERVER
+  |  1. Open a connection  ---------------------> |
+  |  2. "GET /products/42 please"  -------------> |
+  |                                               | 3. Is this user allowed?
+  |                                               |    Fetch product 42, format answer
+  |  &lt;--------------- 4. "200 OK, here is the data"
+  |  5. Connection closed or reused               |</pre>
+
+<div class="box key">
+  <span class="lbl">The key property</span>
+  <p>The server is <strong>passive</strong>. It sits in a loop doing nothing, waiting. A server not receiving requests is burning electricity for nothing — precisely the observation that produced serverless computing (§6.5).</p>
+</div>
+
+<h3>2.3 What happens when you type a URL</h3>
+<p>You type <code>https://www.lums.edu.pk/courses</code> and press Enter.</p>
+
+<pre>https://www.lums.edu.pk:443/courses?page=2#top
+  scheme        host       port   path    query  fragment</pre>
+
+<table>
+<thead><tr><th style="width:16%">Piece</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><strong>scheme</strong></td><td>Which protocol to speak. <code>https</code> = HTTP with encryption.</td></tr>
+<tr><td><strong>host</strong></td><td><em>Which computer</em>, as a human-friendly name.</td></tr>
+<tr><td><strong>port</strong></td><td><em>Which door</em> on that computer. Usually hidden: <code>http</code> defaults to 80, <code>https</code> to 443.</td></tr>
+<tr><td><strong>path</strong></td><td><em>Which resource</em>. Looks like a file path; often is not a real file.</td></tr>
+<tr><td><strong>query</strong></td><td>Extra <code>key=value</code> parameters joined by <code>&amp;</code>.</td></tr>
+<tr><td><strong>fragment</strong></td><td>Position within the page. <strong>Never sent to the server</strong> — the browser keeps it.</td></tr>
+</tbody>
+</table>
+
+<ol>
+<li><strong>Parse the URL</strong> into the pieces above.</li>
+<li><strong>DNS lookup.</strong> Computers route by number, not name, so <code>www.lums.edu.pk</code> must become an IP like <code>104.18.32.7</code>. DNS is the phone book of the internet. Try <code>nslookup www.lums.edu.pk</code>.</li>
+<li><strong>Open a TCP connection</strong> to that IP on port 443. TCP guarantees the bytes arrive, in order, uncorrupted, via a three-step handshake (<code>SYN</code> → <code>SYN-ACK</code> → <code>ACK</code>): "can you hear me?" / "yes, can you hear me?" / "yes".</li>
+<li><strong>TLS handshake</strong> — because we used <code>https</code>, encryption is negotiated <em>before</em> any real data moves (§9).</li>
+<li><strong>Send the HTTP request</strong> — plain text, readable by eye.</li>
+<li><strong>The server works</strong> — reads a file, or queries a database and renders HTML, or forwards to another server entirely (§7.5).</li>
+<li><strong>Receive the response.</strong></li>
+<li><strong>Render, then repeat.</strong> The browser finds references to CSS, JS, images, fonts, and <em>fires a new request for each</em>. One "page load" is typically 30–120 request/response cycles.</li>
+</ol>
+
+<div class="box">
+  <span class="lbl">Try it</span>
+  <p>Open any site. Press <strong>F12</strong> → <strong>Network</strong> → reload. You are now looking at every request the browser made. Click one to see Headers, Response, and Timing. Get comfortable here now — you will live in this panel.</p>
+</div>
+
+<h3>2.4 Why cloud people care</h3>
+<p>The client–server split is <em>why the cloud exists</em>. Because the client never sees inside the kitchen, the provider is free to run your server on any machine in any datacentre, run twenty copies behind one address, kill a crashed instance and start a fresh one mid-traffic, and move you during maintenance. None of that is possible if clients depend on a specific machine. This is the reason for §6.2.</p>
+
+<p>Two variations worth recognising: <strong>peer-to-peer</strong>, where every node is both client and server (BitTorrent, blockchain); and <strong>server-initiated messages</strong>, which plain HTTP cannot do — hence <strong>WebSockets</strong> (persistent two-way, used by chat and live dashboards), <strong>Server-Sent Events</strong> (one-way server→client, used by AI interfaces streaming tokens), and <strong>polling</strong> (client asks repeatedly; simple, wasteful).</p>
+
+<h2>3. HTTP and HTTPS</h2>
+
+<p>A <strong>protocol</strong> is an agreed set of rules for a conversation. Call a service line and there is an unspoken protocol: greeting, your problem, your account number. Recite the account number before they pick up and the conversation fails — not because the information was wrong, but because the order and format were.</p>
+
+<p><strong>HTTP</strong> is that agreed format for the web, and it is a text format, which means you can read it with your eyes. <strong>HTTPS</strong> is the identical protocol wrapped in an encrypted envelope. There is no separate "HTTPS protocol"; it is HTTP over TLS.</p>
+
+<h3>3.1 Anatomy</h3>
+<p>Every request has the same four parts, and every response mirrors it with an outcome instead of an intention:</p>
+
+<pre>POST /api/v1/students HTTP/1.1              &lt;- 1. START LINE (method, path, version)
+Host: api.university.edu                    &lt;- 2. HEADERS (metadata)
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOi...
+                                            &lt;- 3. BLANK LINE (mandatory)
+{"name": "Ayesha Khan", "rollNo": "27100431"}   &lt;- 4. BODY (optional)</pre>
+
+<pre>HTTP/1.1 201 Created                        &lt;- STATUS LINE
+Content-Type: application/json
+Location: /api/v1/students/8891
+
+{"id": 8891, "name": "Ayesha Khan"}</pre>
+
+<p>The blank line is absolutely required — a missing blank line is a malformed request. <code>GET</code> and <code>DELETE</code> normally have no body; <code>POST</code>, <code>PUT</code>, and <code>PATCH</code> usually do.</p>
+
+<h3>3.2 Methods</h3>
+<table>
+<thead><tr><th>Method</th><th>Means</th><th>Body?</th><th>Safe?</th><th>Idempotent?</th></tr></thead>
+<tbody>
+<tr><td><code>GET</code></td><td>Give me this. Change nothing.</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td><code>POST</code></td><td>Here is data; create or do something.</td><td>Yes</td><td>No</td><td>No</td></tr>
+<tr><td><code>PUT</code></td><td>Replace this entirely with what I send.</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+<tr><td><code>PATCH</code></td><td>Change <em>part</em> of this.</td><td>Yes</td><td>No</td><td>Usually</td></tr>
+<tr><td><code>DELETE</code></td><td>Remove this.</td><td>No</td><td>No</td><td>Yes</td></tr>
+<tr><td><code>HEAD</code></td><td>Like GET, headers only.</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+<tr><td><code>OPTIONS</code></td><td>What methods does this endpoint support?</td><td>No</td><td>Yes</td><td>Yes</td></tr>
+</tbody>
+</table>
+
+<p><strong>Safe</strong> means calling it changes nothing on the server. This is why browsers pre-fetch <code>GET</code> URLs and crawlers only issue <code>GET</code>. <strong>Never</strong> build <code>/deleteUser?id=5</code> responding to <code>GET</code> — a crawler will eventually delete your user table. This has happened to real companies.</p>
+
+<p><strong>Idempotent</strong> means calling it once or five times leaves the same final state. <code>DELETE /students/8891</code> five times: gone after the first, the rest do nothing. <code>POST /students</code> five times: five students. Why it matters practically — <em>the network is unreliable</em>. If a request times out you do not know whether the server processed it. Idempotent operations can simply be retried; non-idempotent ones might double-charge a card. Cloud systems retry constantly, so idempotency is a design requirement, not trivia.</p>
+
+<p><strong>Where the data goes.</strong> <code>GET</code> puts it in the URL — visible in browser history, server logs, and proxy logs (<strong>never put passwords or tokens in a URL</strong>), capped near 2,000 characters, but bookmarkable and shareable. <code>POST</code> puts it in the body — not logged by default, no length limit, not bookmarkable. Note that <code>POST</code> is <strong>not encrypted</strong>; it is merely not visible in the URL bar. Only HTTPS encrypts. A password sent by <code>POST</code> over plain HTTP is fully readable by anyone on the network.</p>
+
+<h3>3.3 Status codes</h3>
+<p>The first digit gives the category, and the <strong>4xx/5xx split is the single most useful debugging distinction in this module: 4xx means fix your request, 5xx means fix the server.</strong></p>
+
+<table>
+<thead><tr><th style="width:9%">Code</th><th style="width:21%">Name</th><th>When you see it</th></tr></thead>
+<tbody>
+<tr><td colspan="3" style="background:#e8edf3"><strong>2xx — Success</strong></td></tr>
+<tr><td><code>200</code></td><td>OK</td><td>Standard success; body has what you asked for.</td></tr>
+<tr><td><code>201</code></td><td>Created</td><td>Your <code>POST</code> created something. Check the <code>Location</code> header.</td></tr>
+<tr><td><code>202</code></td><td>Accepted</td><td>"Got it, we'll process later." Common in queue-based systems (§6.4).</td></tr>
+<tr><td><code>204</code></td><td>No Content</td><td>Success, nothing to send back. Typical for <code>DELETE</code>.</td></tr>
+<tr><td colspan="3" style="background:#e8edf3"><strong>3xx — Redirection</strong></td></tr>
+<tr><td><code>301</code></td><td>Moved Permanently</td><td>Dead forever, use the new URL. Cached <strong>aggressively</strong> — a wrong 301 can strand users for months.</td></tr>
+<tr><td><code>302</code></td><td>Found (temporary)</td><td>Go here for now, keep asking me.</td></tr>
+<tr><td><code>304</code></td><td>Not Modified</td><td>"Your cached copy is still good." Huge bandwidth saver.</td></tr>
+<tr><td colspan="3" style="background:#e8edf3"><strong>4xx — You made the mistake</strong></td></tr>
+<tr><td><code>400</code></td><td>Bad Request</td><td>Malformed JSON, missing field, wrong type.</td></tr>
+<tr><td><code>401</code></td><td>Unauthorized</td><td><strong>Badly named — it means <em>unauthenticated</em>.</strong> Missing or expired token.</td></tr>
+<tr><td><code>403</code></td><td>Forbidden</td><td>We know who you are; you are not allowed.</td></tr>
+<tr><td><code>404</code></td><td>Not Found</td><td>Wrong path, or the resource genuinely does not exist.</td></tr>
+<tr><td><code>405</code></td><td>Method Not Allowed</td><td>Right URL, wrong verb.</td></tr>
+<tr><td><code>409</code></td><td>Conflict</td><td>Duplicate. "That email is already registered."</td></tr>
+<tr><td><code>413</code></td><td>Payload Too Large</td><td>Upload exceeded the limit. Very common behind Nginx.</td></tr>
+<tr><td><code>415</code></td><td>Unsupported Media Type</td><td>You sent XML; it wanted JSON. Usually a missing <code>Content-Type</code>.</td></tr>
+<tr><td><code>429</code></td><td>Too Many Requests</td><td>Rate limited. Check the <code>Retry-After</code> header.</td></tr>
+<tr><td colspan="3" style="background:#e8edf3"><strong>5xx — The server made the mistake</strong></td></tr>
+<tr><td><code>500</code></td><td>Internal Server Error</td><td>Unhandled exception in the application code.</td></tr>
+<tr><td><code>502</code></td><td>Bad Gateway</td><td>A proxy reached for the app behind it and got nothing or garbage. <strong>See §8.4.</strong></td></tr>
+<tr><td><code>503</code></td><td>Service Unavailable</td><td>Up but overloaded, or deliberately in maintenance.</td></tr>
+<tr><td><code>504</code></td><td>Gateway Timeout</td><td>Proxy reached the app, app took too long.</td></tr>
+</tbody>
+</table>
+
+<div class="box key">
+  <span class="lbl">Two distinctions worth memorising</span>
+  <p><strong>401 vs 403:</strong> 401 = "Who are you?" · 403 = "I know who you are, and no."<br>
+     <strong>502 vs 504:</strong> 502 = "the thing behind me is <em>broken</em>" · 504 = "the thing behind me is <em>slow</em>".</p>
+</div>
+
+<h3>3.4 Headers</h3>
+<table>
+<thead><tr><th style="width:10%">Dir.</th><th style="width:24%">Header</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>Req</td><td><code>Host</code></td><td>Which website you want. <strong>Mandatory in HTTP/1.1.</strong> One IP can host 500 sites; this is how the server knows which. Foundation of virtual hosting (§7.4).</td></tr>
+<tr><td>Req</td><td><code>Accept</code> / <code>Accept-Encoding</code></td><td>Formats and compression the client handles. <code>gzip, br</code> can shrink responses 70%+.</td></tr>
+<tr><td>Req</td><td><code>Authorization</code></td><td>Credentials, usually <code>Bearer &lt;token&gt;</code>.</td></tr>
+<tr><td>Req</td><td><code>Content-Type</code></td><td>Format of the body <em>you are sending</em>.</td></tr>
+<tr><td>Req</td><td><code>User-Agent</code> / <code>Cookie</code> / <code>Referer</code></td><td>Client software; stored values sent back; the page you came from. (<code>Referer</code> has been misspelled in the spec since 1996. Nobody is fixing it.)</td></tr>
+<tr><td>Resp</td><td><code>Content-Type</code></td><td>Format of the body. <strong>Wrong value and browsers do strange things</strong> — e.g. downloading your JSON as a file.</td></tr>
+<tr><td>Resp</td><td><code>Location</code></td><td>Where to go next (with 3xx and 201).</td></tr>
+<tr><td>Resp</td><td><code>Cache-Control</code> / <code>ETag</code></td><td>How long this may be cached; a content fingerprint enabling <code>304</code>.</td></tr>
+<tr><td>Resp</td><td><code>Set-Cookie</code></td><td>"Store this and send it back next time."</td></tr>
+<tr><td>Resp</td><td><code>Access-Control-Allow-Origin</code></td><td>CORS — which other sites' JavaScript may read this response.</td></tr>
+<tr><td>Resp</td><td><code>Strict-Transport-Security</code></td><td>"Only ever talk to me over HTTPS." (§9.5)</td></tr>
+<tr><td>Resp</td><td><code>X-Powered-By</code> / <code>Server</code></td><td>Reveals your stack. <strong>Turn off in production</strong> — free reconnaissance for attackers.</td></tr>
+</tbody>
+</table>
+
+<h3>3.5 CORS, because it will bite you</h3>
+<p>By default, JavaScript on <code>https://mysite.com</code> is <strong>not allowed to read</strong> a response from <code>https://api.othersite.com</code>. This protects you: otherwise a malicious page could quietly call your bank's API using your logged-in session and read the results. To permit it, the <em>server</em> must send <code>Access-Control-Allow-Origin: https://mysite.com</code>.</p>
+
+<div class="box warn">
+  <span class="lbl">Three things students get wrong every semester</span>
+  <ol style="margin-bottom:0">
+    <li><strong>CORS is enforced by the browser, not the server.</strong> <code>curl</code> will happily fetch the data; your JavaScript will not. <em>If it works in curl or Postman but fails in the browser, suspect CORS.</em></li>
+    <li><strong>The fix belongs on the API server</strong>, not in frontend code. You cannot "turn off CORS" from the client.</li>
+    <li>For non-simple requests the browser sends a <strong>preflight</strong> <code>OPTIONS</code> first. Mysterious <code>OPTIONS</code> requests in your logs are this.</li>
+  </ol>
+</div>
+
+<pre>az webapp cors add --resource-group myRG --name myApp --allowed-origins https://mysite.com</pre>
+
+<p><strong>Versions, briefly:</strong> HTTP/1.1 (1997) added reusable connections and the <code>Host</code> header; HTTP/2 (2015) made it binary and multiplexed; HTTP/3 (2022) runs over QUIC/UDP and handles flaky mobile networks far better. You rarely choose — browsers and Azure negotiate automatically. The <em>semantics</em> (methods, codes, headers) are identical across all versions; only the wire encoding changed.</p>
+
+<div class="box">
+  <span class="lbl">Try it</span>
+<pre style="margin:4pt 0 0">curl -I https://www.microsoft.com                  # response headers only
+curl -v https://api.github.com/users/octocat       # the full conversation
+curl -i https://api.github.com/this-does-not-exist # force a 404
+curl -X POST https://httpbin.org/post \
+  -H "Content-Type: application/json" -d '{"course": "CS 487"}'</pre>
+  <p style="margin-top:4pt"><code>httpbin.org</code> echoes your request back — the best HTTP sandbox there is. Try <code>httpbin.org/status/502</code> to summon any status code on demand.</p>
+</div>
+
+<h2>4. REST APIs and JSON</h2>
+
+<p>An <strong>API</strong> is a website for programs instead of people. When you visit a weather site you get icons and ads; when a program wants the same weather it wants the number <code>34</code> and the word <code>Sunny</code>. <strong>REST</strong> is a set of conventions for designing those APIs — not a technology you install, an agreement about style.</p>
+
+<h3>4.1 Nouns and verbs</h3>
+<div class="box key">
+  <span class="lbl">The single insight of REST</span>
+  <p><strong>The URL is a noun. The HTTP method is the verb.</strong></p>
+</div>
+
+<pre>BAD (verbs in the URL)              GOOD (one noun, six verbs)
+GET  /getAllStudents                GET    /students          list
+POST /createNewStudent              POST   /students          create
+POST /updateStudentName?id=42       GET    /students/42       read one
+GET  /deleteStudent?id=42  &lt;- unsafe PUT   /students/42       replace
+                                    PATCH  /students/42       partial update
+                                    DELETE /students/42       delete</pre>
+
+<p>The second list is smaller to learn: once you know the noun you already know all six operations. That predictability is the whole point. <strong>Nesting</strong> expresses relationships (<code>GET /students/42/enrollments</code>, <code>DELETE /students/42/enrollments/CS487</code>). <strong>Query parameters</strong> filter, sort, and paginate — they never identify a resource (<code>GET /students?year=4&amp;sort=name&amp;page=2</code>).</p>
+
+<h3>4.2 JSON</h3>
+<p>Despite the name, JSON has nothing to do with JavaScript any more — every language reads and writes it. There are exactly six types:</p>
+
+<table>
+<thead><tr><th style="width:14%">Type</th><th style="width:26%">Looks like</th><th>Rules</th></tr></thead>
+<tbody>
+<tr><td><strong>Object</strong></td><td><code>{ }</code></td><td>Unordered <code>"key": value</code> pairs. Keys <strong>must</strong> be double-quoted.</td></tr>
+<tr><td><strong>Array</strong></td><td><code>[ ]</code></td><td>Ordered list, comma-separated.</td></tr>
+<tr><td><strong>String</strong></td><td><code>"text"</code></td><td><strong>Double quotes only.</strong> Single quotes are invalid JSON.</td></tr>
+<tr><td><strong>Number</strong></td><td><code>42</code>, <code>3.72</code></td><td>No quotes, no leading <code>+</code>, no <code>NaN</code>, no <code>Infinity</code>.</td></tr>
+<tr><td><strong>Boolean</strong></td><td><code>true</code> / <code>false</code></td><td>Lowercase. Not <code>True</code>, not <code>TRUE</code>.</td></tr>
+<tr><td><strong>Null</strong></td><td><code>null</code></td><td>Lowercase. "Exists but has no value."</td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+  <span class="lbl">The four mistakes everyone makes</span>
+<pre style="margin:4pt 0 0">{
+  'name': 'Ayesha',       &lt;- single quotes are not JSON
+  "cgpa": 3.72,           &lt;- trailing comma before } is not allowed
+  // a comment            &lt;- JSON has no comments. None. Ever.
+  "date": 2026-08-27      &lt;- dates are not a JSON type; use a string "2026-08-27"
+}</pre>
+  <p style="margin-top:4pt">If an API returns <code>400</code> and you cannot see why, paste the body into <em>jsonlint.com</em> before doing anything else. Ninety percent of the time it is a comma.</p>
+</div>
+
+<h3>4.3 A worked example</h3>
+<pre>POST /api/v1/students          HTTP/1.1        HTTP/1.1 201 Created
+Content-Type: application/json                 Location: /api/v1/students/8891
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+                                               {
+{                                                "id": 8891,
+  "name": "Ayesha Khan",                         "name": "Ayesha Khan",
+  "rollNo": "27100431",                          "rollNo": "27100431",
+  "program": "BS Computer Science"               "createdAt": "2026-08-27T09:14:22Z"
+}                                              }</pre>
+
+<p>Three professional touches: the status is <code>201</code>, not <code>200</code>; the <code>Location</code> header says where the new thing lives; and the server filled in <code>id</code> and <code>createdAt</code>, fields the client never sent.</p>
+
+<p>When returning a list, wrap it: <code>{"data": [...], "pagination": {...}}</code>. It looks like extra work, but it lets you add pagination, warnings, or links later without breaking every client. Returning a bare <code>[...]</code> array is a decision you will regret.</p>
+
+<p>And an error, done properly — telling the client <em>what</em> to fix, plus a <code>traceId</code> so support can find the exact log entry:</p>
+
+<pre>HTTP/1.1 422 Unprocessable Entity
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "One or more fields were invalid.",
+    "details": [ { "field": "rollNo", "issue": "Must be exactly 8 digits." } ],
+    "traceId": "0HMV9K2P4L1"
+  }
+}</pre>
+
+<p>Compare with the useless but extremely common alternative: <code>500</code> with an empty body.</p>
+
+<h3>4.4 Authentication</h3>
+<p><strong>API key</strong> — a long random string in a header (<code>X-API-Key: sk_live_...</code>). Identifies the <em>application</em>, not a user. If it leaks it is leaked until rotated. Never commit one to Git.</p>
+<p><strong>Bearer token / JWT</strong> — issued after login, expires. A JWT is three base64 chunks separated by dots. <strong>The payload is readable by anyone</strong> (paste one into jwt.io) — it is <em>signed</em>, not <em>encrypted</em>. Never put secrets in a JWT payload; the signature is what makes it tamper-proof.</p>
+<p><strong>OAuth 2.0</strong> — the "Sign in with Microsoft" flow. The user authenticates with the identity provider, which hands your app a token; your app never sees the password. This is what <strong>Microsoft Entra ID</strong> implements and what you will use for RBAC later in this course.</p>
+
+<div class="box key">
+  <span class="lbl">Why cloud people care</span>
+  <p>Cloud platforms <em>are</em> REST APIs. When you click in the Azure Portal, the portal is a JavaScript client calling <code>management.azure.com</code>. When you run <code>az vm create</code>, the CLI makes the same calls. When Terraform provisions infrastructure, same calls. There is no hidden magic path — which is exactly why everything in Azure is scriptable.</p>
+</div>
+
+<h2>5. Ports and Sockets</h2>
+
+<p>Your server has one IP address but may run a website, a database, a mail service, and a file server at once. When a packet arrives, how does the OS know which program it is for?</p>
+
+<p>Think of an office building. The <strong>street address</strong> is the IP — it gets mail to the right building. The <strong>suite number</strong> is the port — it gets mail to the right office. The <strong>doorbell being answered</strong> is a program <em>listening</em> on that port. Mail addressed to a suite where nobody works is returned to sender: that is "connection refused".</p>
+
+<p>A <strong>port</strong> is just a number from 0 to 65535 with no physical existence. A <strong>socket</strong> is protocol + IP + port, and a full connection is a pair of sockets:</p>
+
+<pre class="ascii">203.0.113.9:51234  &lt;----------------&gt;  20.51.3.44:443
+  (your laptop)                          (the server)
+  ephemeral port                         listening port</pre>
+
+<h3>5.1 Listening vs ephemeral ports</h3>
+<p><strong>Listening (server side)</strong> — fixed, known in advance, published. The server <em>binds</em> to it and waits. It must be predictable because clients need to know where to knock.</p>
+<p><strong>Ephemeral (client side)</strong> — temporary, random, assigned by your OS for one connection then discarded, typically 49152–65535. You never choose it and never care what it is.</p>
+<p><em>Why do clients need a port at all?</em> Because you have twelve tabs open. When responses flood back to your single IP, the ephemeral port is how your OS knows that <em>this</em> response belongs to <em>that</em> tab.</p>
+
+<table>
+<thead><tr><th style="width:12%">Port</th><th style="width:24%">Service</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>22</td><td>SSH / SFTP / SCP</td><td>Encrypted remote access <strong>and</strong> file transfer.</td></tr>
+<tr><td>53</td><td>DNS</td><td>Name → IP lookup.</td></tr>
+<tr><td><strong>80</strong></td><td><strong>HTTP</strong></td><td>Unencrypted web.</td></tr>
+<tr><td><strong>443</strong></td><td><strong>HTTPS</strong></td><td>Encrypted web. The one you will use constantly.</td></tr>
+<tr><td>20, 21 / 990</td><td>FTP / FTPS</td><td>See §10.</td></tr>
+<tr><td>1433 / 3306 / 5432</td><td>SQL Server / MySQL / PostgreSQL</td><td>Azure SQL uses 1433.</td></tr>
+<tr><td>3389</td><td>RDP</td><td>Remote Desktop into a Windows VM.</td></tr>
+<tr><td>6379 / 27017</td><td>Redis / MongoDB</td><td>Azure Cache for Redis; Cosmos DB Mongo API.</td></tr>
+<tr><td>8080 / 8000</td><td>HTTP alternate</td><td>Dev servers, app servers behind a proxy.</td></tr>
+</tbody>
+</table>
+
+<p>Ports 0–1023 are "well-known"; on Linux and macOS, binding to them requires administrator privileges — precisely why you run a dev server on 8080 and let a real web server handle 80. <strong>Memorise 80, 443, 22, 3389, 1433.</strong></p>
+
+<h3>5.2 Binding, and the error you will definitely see</h3>
+<p>Only <strong>one</strong> process can listen on a given IP + port at a time. Hence <code>EADDRINUSE: address already in use</code> or <code>nginx: bind() to 0.0.0.0:80 failed (98: Address already in use)</code>. Something is already in that apartment; find it and evict it, or move.</p>
+
+<pre>sudo lsof -i :8080                 # Linux/macOS - who owns port 8080?
+netstat -ano | findstr :8080       # Windows - then taskkill /PID 12345 /F</pre>
+
+<h3>5.3 <code>127.0.0.1</code> vs <code>0.0.0.0</code></h3>
+<table>
+<thead><tr><th style="width:22%">Bind address</th><th style="width:28%">Means</th><th>Reachable from</th></tr></thead>
+<tbody>
+<tr><td><code>127.0.0.1</code> (localhost)</td><td>Loopback only</td><td><strong>This machine only.</strong> Nothing external can connect.</td></tr>
+<tr><td><code>0.0.0.0</code></td><td>All interfaces</td><td>Anyone who can reach the machine.</td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+  <span class="lbl">The classic beginner bug</span>
+  <p><em>"My app works on the VM when I curl it, but I can't reach it from my laptop."</em> Almost always: the app bound to <code>127.0.0.1</code>. Bind to <code>0.0.0.0</code> instead. It is also a legitimate security technique in reverse — bind your database to <code>127.0.0.1</code> and it becomes unreachable from the internet, no firewall required.</p>
+</div>
+
+<h3>5.4 Firewalls and Network Security Groups</h3>
+<p>Even with a program listening correctly, traffic can be blocked at three layers, and a request must pass <strong>every</strong> one:</p>
+
+<pre class="ascii">Internet -&gt; [ Azure NSG: allow/deny by port, protocol, source IP ]
+         -&gt; [ OS firewall: ufw / iptables / Windows Defender ]
+         -&gt; [ Your app, listening on 0.0.0.0:80 ]</pre>
+
+<p>A brand-new Azure Linux VM allows SSH (22) and nothing else. Install Nginx and cannot reach it? You have not opened port 80 in the NSG.</p>
+
+<pre>az vm open-port --resource-group myRG --name myVM --port 80 --priority 900</pre>
+
+<h2>6. Application Architecture</h2>
+
+<h3>6.1 N-tier</h3>
+<p>A <strong>2-tier</strong> design has a fat client talking straight to a database — normal in the 1990s, now bad practice, because every client holds database credentials and business rules are duplicated across every installation. The standard web architecture is <strong>3-tier</strong>:</p>
+
+<pre class="ascii">PRESENTATION   Browser, mobile app, React/Angular SPA
+               Show things to humans, collect input
+                    |  HTTPS / JSON
+APPLICATION    Node.js / .NET / Django / Spring API
+               Validate, authorise, apply business rules
+               Azure: App Service, Container Apps, AKS, Functions
+                    |  SQL / driver protocol
+DATA           Azure SQL, Cosmos DB, PostgreSQL, Blob Storage
+               Store it, keep it consistent, keep it safe</pre>
+
+<p>Four reasons to split: <strong>independent scaling</strong> (add API servers without touching the database — in the cloud you pay per resource, so scaling only what is slow is real money); <strong>security depth</strong> (the database sits on a private network with no public IP, reachable only by the app tier); <strong>independent replacement</strong> (rewrite the frontend; the API does not change); and <strong>team boundaries</strong> (frontend, backend, and DBA work in parallel against agreed contracts).</p>
+
+<div class="box">
+  <span class="lbl">Monolith vs microservices</span>
+  <p>Microservices buy independent deployment and scaling at the cost of enormous operational complexity: distributed debugging, network failures between your own components, data consistency across services. <strong>Advice for this course, and honestly for the first years of your career:</strong> start with a well-structured monolith and split only when a specific piece has a genuinely different scaling or release profile. "We use microservices" is not an architecture; it is a bill.</p>
+</div>
+
+<h3>6.2 Stateless vs stateful — the most important idea here</h3>
+<p><strong>State</strong> is information the server remembers <em>between requests</em>. A stateful service keeps it in its own memory, and the moment you run more than one copy, it breaks:</p>
+
+<pre class="ascii">STATEFUL                                     STATELESS
+Req 1 -&gt; Server A: "Login as Ayesha"         Req 1 -&gt; Server A: returns a signed token
+         A remembers session123 = Ayesha
+Req 2 -&gt; Server A: "Show my cart"      OK    Req 2 -&gt; Server B: token -&gt; reads cart
+Req 3 -&gt; Server B: "Show my cart"    FAILS            from Redis            OK
+         "session123? Never heard of it"     Req 3 -&gt; Server C: same            OK</pre>
+
+<table>
+<thead><tr><th>Capability</th><th style="width:24%">Stateless</th><th style="width:30%">Stateful</th></tr></thead>
+<tbody>
+<tr><td>Add instances during a traffic spike</td><td>Trivial</td><td>Painful</td></tr>
+<tr><td>Remove instances when quiet (save money)</td><td>Trivial</td><td>Loses user sessions</td></tr>
+<tr><td>Kill and replace a crashed instance</td><td>Invisible to users</td><td>Users get logged out</td></tr>
+<tr><td>Deploy a new version with zero downtime</td><td>Standard</td><td>Requires careful draining</td></tr>
+<tr><td>Distribute across Azure regions</td><td>Straightforward</td><td>Hard</td></tr>
+</tbody>
+</table>
+
+<div class="box key">
+  <span class="lbl">The single most useful rule of thumb in cloud development</span>
+  <p><em>Treat every server as if it will be destroyed without warning in the next five minutes.</em> If that would lose data, the data is in the wrong place. This is "cattle, not pets" — you do not name a server and nurse it back to health; you shoot it and start another.</p>
+</div>
+
+<table>
+<thead><tr><th style="width:34%">State</th><th>Put it in</th></tr></thead>
+<tbody>
+<tr><td>User session</td><td>Azure Cache for Redis, or a signed cookie / JWT</td></tr>
+<tr><td>Uploaded files</td><td>Azure Blob Storage — <strong>never</strong> the local disk of an app server</td></tr>
+<tr><td>Application data</td><td>Azure SQL / Cosmos DB</td></tr>
+<tr><td>Background jobs</td><td>Azure Service Bus / Storage Queues</td></tr>
+<tr><td>Configuration &amp; secrets</td><td>App Settings / Azure Key Vault</td></tr>
+</tbody>
+</table>
+
+<p><strong>Sticky sessions</strong> (session affinity) are the load balancer's escape hatch: pin each user to one instance so stateful apps keep working. Azure App Service calls this <em>ARR Affinity</em> and enables it by default. It works, but it undermines even load distribution and still loses sessions on restart. If your app is properly stateless, turn it off:</p>
+
+<pre>az webapp update --resource-group myRG --name myApp --client-affinity-enabled false</pre>
+
+<h3>6.3 Load balancing</h3>
+<p>A load balancer sits in front of several identical instances and distributes requests — <strong>round robin</strong> (take turns), <strong>least connections</strong> (send to the least busy), or <strong>IP hash</strong> (same client → same server). It also runs <strong>health checks</strong>, pinging each instance every few seconds (typically <code>GET /health</code>) and silently removing any that fails. This is how a crashed server becomes a non-event instead of an outage.</p>
+
+<table>
+<thead><tr><th style="width:28%">Azure service</th><th style="width:20%">Layer</th><th>Use for</th></tr></thead>
+<tbody>
+<tr><td>Azure Load Balancer</td><td>4 (TCP/UDP)</td><td>Raw traffic to VMs. Fast, protocol-agnostic.</td></tr>
+<tr><td>Application Gateway</td><td>7 (HTTP), regional</td><td>Path-based routing, TLS termination, Web Application Firewall.</td></tr>
+<tr><td>Azure Front Door</td><td>7, global</td><td>Routing users to the nearest region, global CDN, DDoS protection.</td></tr>
+<tr><td><em>built-in</em></td><td>—</td><td>App Service and Container Apps load-balance across instances automatically.</td></tr>
+</tbody>
+</table>
+
+<p><em>Layer 4</em> means it only sees IP and port. <em>Layer 7</em> means it can read the HTTP request — path, headers, hostname — and route accordingly (<code>/api/*</code> → API pool, everything else → web pool).</p>
+
+<h3>6.4 Message queues</h3>
+<p><strong>The problem.</strong> A user uploads a 200 MB video and your API must transcode it — four minutes. Inside the HTTP request that means: the browser stares at a spinner, the request times out (most proxies give up after 30–240 seconds, producing <code>504</code>), and one worker thread is blocked the whole time. Ten uploads and your API is dead.</p>
+
+<p><strong>The solution.</strong> Do not do the work during the request. Write down that the work <em>needs doing</em> and answer immediately.</p>
+
+<pre class="ascii">                   +----------------+
+Browser -&gt; [ API ] -&gt;  QUEUE         -&gt; [ Worker 1 ] -&gt; transcode -&gt; Blob Storage
+   ^               | job1 job2 job3 | -&gt; [ Worker 2 ]
+   +-- 202 Accepted, {"jobId": "abc"} -&gt; [ Worker 3 ]</pre>
+
+<p>The API saves the file, drops a message on the queue, and returns <code>202 Accepted</code> with a job ID — total time 200 milliseconds. Separate workers pull jobs at their own pace; the user polls <code>GET /jobs/abc</code>. What a queue buys you: <strong>decoupling</strong> (the API neither knows nor cares how many workers exist), <strong>buffering</strong> (a spike fills the queue instead of crashing the system), <strong>reliability</strong> (a worker dying mid-job makes the message visible again for retry), <strong>independent scaling</strong> (queue 10,000 deep? start 50 workers; empty? scale to zero), and <strong>dead-lettering</strong> (messages failing repeatedly move aside for a human instead of poisoning the pipeline).</p>
+
+<table>
+<thead><tr><th style="width:30%">Azure service</th><th>When to use</th></tr></thead>
+<tbody>
+<tr><td>Storage Queues</td><td>Simple, cheap, huge scale. Start here.</td></tr>
+<tr><td>Service Bus</td><td>Enterprise messaging: topics &amp; subscriptions, sessions, ordering, transactions, dead-letter queues.</td></tr>
+<tr><td>Event Hubs</td><td>Massive telemetry streams (millions/sec). IoT and log ingestion, not task queues.</td></tr>
+<tr><td>Event Grid</td><td>Reacting to events ("a blob was uploaded → run this function").</td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+  <span class="lbl">Design note</span>
+  <p>Because a message can be delivered more than once — that is the price of guaranteed delivery — your workers <strong>must be idempotent</strong>. Processing the same message twice must not charge the card twice. Remember §3.2? This is why that concept matters.</p>
+</div>
+
+<h3>6.5 Where "serverless" fits</h3>
+<p>A traditional server sits in a loop waiting whether or not requests arrive, and you pay for that waiting. Serverless flips it: your code exists only while handling something. <strong>Azure Functions</strong> runs one function when an HTTP request arrives, a queue message appears, or a timer fires — you pay per execution and per GB-second, and idle cost is zero. <strong>Azure Container Apps</strong> scales your container from zero based on HTTP traffic or queue depth.</p>
+
+<p>The name is a marketing lie — there are absolutely servers — but the <em>developer experience</em> has none: no OS patching, no capacity planning, no idle billing. <strong>The catch is cold starts:</strong> if nothing has run for a while, the first request waits for an instance to spin up (hundreds of milliseconds to seconds). Fine for a background job, potentially unacceptable for a checkout page. Mitigations exist and they cost money — which is the trade-off in a nutshell.</p>
+
+<h2>7. Web Servers: Apache, Nginx, IIS</h2>
+
+<p>A web server listens on a port, accepts HTTP requests, and returns HTTP responses. In practice it does five things: <strong>serve static files</strong> (map a URL to a file and send its bytes with the right <code>Content-Type</code>); <strong>route</strong> (decide which site and handler a request belongs to); <strong>terminate TLS</strong> (do the crypto so your app does not have to); <strong>proxy</strong> (forward to an application elsewhere and relay the answer); and <strong>enforce policy</strong> (compression, caching, rate limits, redirects, request size limits).</p>
+
+<p><strong>Static content</strong> is identical for everybody — a logo, a CSS file, a PDF. The server reads a file and sends it, tens of thousands of times per second, and a CDN can cache it near the user. <strong>Dynamic content</strong> is generated per request and requires running application code, which is orders of magnitude more expensive. <em>The rule that follows: serve static content statically.</em> Do not route <code>/logo.png</code> through your Django application.</p>
+
+<h3>7.1 The three you will meet</h3>
+<table>
+<thead><tr><th style="width:16%"></th><th>Apache HTTP Server</th><th>Nginx</th><th>IIS</th></tr></thead>
+<tbody>
+<tr><td>Released / runs on</td><td>1995 · Linux, Windows, macOS</td><td>2004 · Linux, macOS</td><td>1995 · Windows only</td></tr>
+<tr><td>Concurrency</td><td>Process/thread per connection</td><td>Event-driven, async</td><td>Thread pool + async I/O</td></tr>
+<tr><td>Under heavy load</td><td>Memory grows with connections</td><td>Stays flat and low</td><td>Good on Windows</td></tr>
+<tr><td>Config</td><td><code>httpd.conf</code> + <code>.htaccess</code></td><td><code>nginx.conf</code>, nested blocks</td><td><code>web.config</code> (XML) + GUI</td></tr>
+<tr><td>Killer feature</td><td>Per-folder config with no restart; huge module ecosystem</td><td>Speed as reverse proxy and static host</td><td>Deep .NET, Windows auth, AD integration</td></tr>
+<tr><td>Typical role today</td><td>Legacy PHP/WordPress</td><td>Reverse proxy / load balancer — <strong>the default choice</strong></td><td>ASP.NET on Windows</td></tr>
+</tbody>
+</table>
+
+<p><strong>The concurrency difference, simply.</strong> Apache's classic model dedicates a worker to each connection, each using a few megabytes of RAM; 10,000 slow mobile connections means 10,000 workers and the machine falls over. Nginx uses a small fixed number of workers, each juggling thousands of connections with an event loop — one waiter efficiently managing forty tables instead of hiring forty waiters. (Modern Apache with <code>mpm_event</code> narrows the gap considerably, but the default choice stuck.) <strong>Learn Nginx.</strong></p>
+
+<h3>7.2 Virtual hosts — many sites, one server</h3>
+<p>One VM, one IP, and you want <code>shop.com</code>, <code>blog.com</code>, and <code>portfolio.com</code> on it. The answer is the <code>Host</code> header (§3.4): every HTTP/1.1 request carries the hostname the client typed, and the server picks the matching site config. Apache calls these <em>Virtual Hosts</em>, Nginx calls them <em>server blocks</em>, IIS calls them <em>Sites</em> — same concept.</p>
+
+<pre>server {
+    listen 80;
+    server_name shop.com www.shop.com;
+    root /var/www/shop;
+    index index.html;
+}
+server {
+    listen 80;
+    server_name blog.com www.blog.com;
+    root /var/www/blog;
+}</pre>
+
+<div class="box">
+  <span class="lbl">The HTTPS chicken-and-egg</span>
+  <p>With encryption the <code>Host</code> header is <em>inside</em> the encrypted payload, but the server must choose a certificate <em>before</em> decryption begins. The fix is <strong>SNI (Server Name Indication)</strong>, a TLS extension where the client announces the hostname in the clear during the handshake. Every browser since roughly 2010 supports it. In Azure App Service, "SNI SSL" is the standard free binding; "IP-based SSL" dedicates an IP and costs extra.</p>
+</div>
+
+<p>In App Service you do not edit virtual host files — you add custom domains and Azure's front-end fleet routes:</p>
+<pre>az webapp config hostname add --webapp-name myApp --resource-group myRG --hostname www.example.com</pre>
+
+<h3>7.3 Reverse proxy — the concept that unlocks everything else</h3>
+<p>This is the most important architectural idea in this module and the one students find most slippery. <strong>A reverse proxy receives requests on behalf of other servers, forwards them, and relays the answers back.</strong> The client thinks it is talking to the proxy and has no idea anything else exists.</p>
+
+<pre class="ascii">Internet                +---------------------------------------+
+   |                    |  +-- [ Node.js API  :3000 ]            |
+   v                    |  |                                     |
+[ Nginx :443 ]----------+--+-- [ Python app   :8000 ]            |
+ reverse proxy          |  |                                     |
+                        |  +-- [ Static files /var/www ]         |
+                        +---------------------------------------+</pre>
+
+<table>
+<thead><tr><th style="width:18%"></th><th>Forward proxy</th><th>Reverse proxy</th></tr></thead>
+<tbody>
+<tr><td>Sits in front of</td><td><strong>Clients</strong></td><td><strong>Servers</strong></td></tr>
+<tr><td>Hides</td><td>Who the client is</td><td>What the servers are</td></tr>
+<tr><td>Works for</td><td>The user</td><td>The website owner</td></tr>
+<tr><td>Example</td><td>Corporate web filter, VPN, Tor</td><td>Nginx in front of your app, Azure Front Door</td></tr>
+</tbody>
+</table>
+
+<p>Same technology, opposite direction, opposite beneficiary. <strong>Why put one in front of your app?</strong></p>
+<ol>
+<li><strong>Port privilege.</strong> Your Node app runs unprivileged on 3000; Nginx handles 443. Your application never runs as root.</li>
+<li><strong>TLS termination.</strong> One place to renew certificates; your app speaks plain HTTP internally.</li>
+<li><strong>One entry point, many apps.</strong> <code>/api</code> → Node, <code>/admin</code> → Python, rest → static. One domain, one certificate.</li>
+<li><strong>Load balancing</strong> across instances, with health checks.</li>
+<li><strong>Static file offloading</strong> — your app process never wastes a thread on a logo.</li>
+<li><strong>Buffering slow clients.</strong> Nginx accepts a slow 3G upload at its own pace and hands your app the complete request at once, so an expensive worker is not tied up for 40 seconds.</li>
+<li><strong>Security.</strong> Rate limiting, size limits, hiding version headers, WAF rules — all before a byte reaches your code.</li>
+<li><strong>Zero-downtime deploys.</strong> Start the new version on a new port, flip the proxy, retire the old one.</li>
+</ol>
+
+<pre>server {
+    listen 443 ssl;
+    server_name api.example.com;
+    ssl_certificate     /etc/letsencrypt/live/api.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+
+        # Pass the ORIGINAL request details. Without these, your app thinks
+        # every request came from 127.0.0.1 over plain HTTP.
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Allow WebSocket upgrades through
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade    $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_read_timeout 60s;      # give up after 60s -&gt; produces a 504
+    }
+
+    location /static/ {              # served directly, never touching the app
+        alias /var/www/static/;
+        expires 30d;
+    }
+}</pre>
+
+<div class="box warn">
+  <span class="lbl"><code>X-Forwarded-For</code> matters more than it looks</span>
+  <p>Once a proxy is in the path, your application's "client IP" is the proxy. Any logging, rate limiting, or geo-blocking based on IP will be <em>wrong</em> unless you read <code>X-Forwarded-For</code>. App Service and Front Door set these automatically; most frameworks have a "trust proxy" setting you must enable.</p>
+</div>
+
+<h3>7.4 Where Azure puts all of this</h3>
+<p>You will rarely install Nginx by hand in this course — Azure has already done it. It is the same machinery underneath, which is why you needed to understand it.</p>
+
+<table>
+<thead><tr><th style="width:30%">Concept</th><th>Azure equivalent</th></tr></thead>
+<tbody>
+<tr><td>Virtual host</td><td>Custom domain on an App Service</td></tr>
+<tr><td>Reverse proxy</td><td>Built into App Service; also Application Gateway / Front Door</td></tr>
+<tr><td>TLS termination</td><td>App Service Managed Certificate, or Front Door</td></tr>
+<tr><td>Load balancer</td><td>App Service scale-out, Load Balancer, App Gateway</td></tr>
+<tr><td>Static file host</td><td>Azure Storage static website + CDN</td></tr>
+<tr><td>WAF</td><td>Application Gateway WAF / Front Door WAF</td></tr>
+</tbody>
+</table>
+
+<p>When you deploy a Python app to App Service, Azure runs it behind a proxy that terminates TLS and forwards to an internal port. Seeing <code>X-Forwarded-Proto: https</code> in your app's headers is this machinery doing its job.</p>
+
+<h2>8. Configuration Files and Logs</h2>
+
+<p>Web servers are general-purpose programs; a config file tells one which job it is doing today, and logs tell you what actually happened. Configuration is where you will spend the frustrating hours. Logs are how you get them back.</p>
+
+<h3>8.1 nginx.conf</h3>
+<p>Nginx config is a tree of <strong>blocks</strong> (contexts) containing <strong>directives</strong> ending with semicolons. Settings cascade downward: <code>gzip on;</code> in <code>http</code> applies to every <code>server</code> unless overridden — which is why the same directive can appear at several levels.</p>
+
+<pre>http {
+    include       /etc/nginx/mime.types;   # maps .css -&gt; text/css, etc.
+    access_log    /var/log/nginx/access.log main;
+    client_max_body_size 20M;              # reject bigger uploads with 413
+    gzip on;
+
+    server {                               # ---- one website ----
+        listen       80;
+        server_name  example.com www.example.com;
+        root         /var/www/html;
+        index        index.html;
+
+        location / {                       # ---- one URL pattern ----
+            try_files $uri $uri/ =404;
+        }
+        location /api/ {
+            proxy_pass http://127.0.0.1:3000/;
+        }
+        location ~* \.(jpg|png|css|js|woff2)$ {
+            expires 30d;
+            access_log off;                # don't log every image
+        }
+        error_page 500 502 503 504 /50x.html;
+    }
+}</pre>
+
+<table>
+<thead><tr><th style="width:30%">Syntax</th><th style="width:40%">Meaning</th><th>Priority</th></tr></thead>
+<tbody>
+<tr><td><code>location = /exact</code></td><td>Exact match only</td><td>1st — wins immediately</td></tr>
+<tr><td><code>location ^~ /images/</code></td><td>Prefix, stop looking at regex</td><td>2nd</td></tr>
+<tr><td><code>location ~ \.php$</code> / <code>~*</code></td><td>Regex, case-sensitive / insensitive</td><td>3rd — first match wins</td></tr>
+<tr><td><code>location /docs/</code></td><td>Plain prefix</td><td>4th — longest match wins</td></tr>
+</tbody>
+</table>
+
+<div class="box warn">
+  <span class="lbl">The two commands you must know</span>
+<pre style="margin:4pt 0 0">sudo nginx -t                  # TEST the config. ALWAYS run this first.
+sudo systemctl reload nginx    # apply WITHOUT dropping connections</pre>
+  <p style="margin-top:4pt">Reloading a broken config is how you take a site down at 2 a.m. <code>nginx -t</code> takes half a second. Run it every time.</p>
+</div>
+
+<h3>8.2 .htaccess (Apache) and web.config (IIS)</h3>
+<p><code>.htaccess</code> is per-directory config that Apache reads on <strong>every request</strong>. That means you can change behaviour without a restart and without root — which is why every shared host relies on it — but it is slow and errors only surface at request time. If you control the server, put the rules in the main config and set <code>AllowOverride None</code>.</p>
+
+<pre># Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Send anything that isn't a real file to index.php (front controller)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+
+&lt;Files ".env"&gt;
+    Require all denied
+&lt;/Files&gt;</pre>
+
+<p><code>R=301</code> is the status code from §3.3, right there in a config file. IIS expresses the same concepts in XML, and this is directly course-relevant: a <strong>Windows-based Azure App Service reads <code>web.config</code> from the root of your deployed site.</strong></p>
+
+<pre>&lt;configuration&gt;&lt;system.webServer&gt;
+  &lt;defaultDocument&gt;&lt;files&gt;&lt;clear /&gt;&lt;add value="index.html" /&gt;&lt;/files&gt;&lt;/defaultDocument&gt;
+  &lt;rewrite&gt;&lt;rules&gt;
+    &lt;rule name="Force HTTPS" stopProcessing="true"&gt;
+      &lt;match url="(.*)" /&gt;
+      &lt;conditions&gt;&lt;add input="{HTTPS}" pattern="off" ignoreCase="true" /&gt;&lt;/conditions&gt;
+      &lt;action type="Redirect" url="https://{HTTP_HOST}/{R:1}" redirectType="Permanent" /&gt;
+    &lt;/rule&gt;
+  &lt;/rules&gt;&lt;/rewrite&gt;
+  &lt;httpProtocol&gt;&lt;customHeaders&gt;&lt;remove name="X-Powered-By" /&gt;&lt;/customHeaders&gt;&lt;/httpProtocol&gt;
+&lt;/system.webServer&gt;&lt;/configuration&gt;</pre>
+
+<h3>8.3 Reading logs</h3>
+<p>Two kinds, and knowing which to open saves an hour. The <strong>access log</strong> has one line per request and answers <em>"did the request arrive, and what did we return?"</em> The <strong>error log</strong> has one line per problem and answers <em>"why did it fail?"</em></p>
+
+<pre class="ascii">203.0.113.9 - - [27/Aug/2026:09:14:22 +0500] "GET /api/students?page=2 HTTP/1.1" 200 4821
+  client IP            timestamp                   request line                 status size</pre>
+
+<pre>2026/08/27 09:14:22 [error] *1029 connect() failed (111: Connection refused)
+while connecting to upstream, client: 203.0.113.9, server: api.example.com,
+upstream: "http://127.0.0.1:3000/api/students"</pre>
+
+<p>Read that carefully — it contains the complete answer. <code>connect() failed (111: Connection refused)</code> <em>while connecting to upstream</em> <code>http://127.0.0.1:3000</code>. Translation: <strong>Nginx tried to reach your app on port 3000 and nothing was listening.</strong> Your app is not running. That is the whole diagnosis, handed to you.</p>
+
+<table>
+<thead><tr><th style="width:30%">Platform</th><th style="width:35%">Access log</th><th>Error log</th></tr></thead>
+<tbody>
+<tr><td>Nginx (Linux)</td><td><code>/var/log/nginx/access.log</code></td><td><code>/var/log/nginx/error.log</code></td></tr>
+<tr><td>Apache (Debian/Ubuntu)</td><td><code>/var/log/apache2/access.log</code></td><td><code>/var/log/apache2/error.log</code></td></tr>
+<tr><td>IIS</td><td><code>C:\inetpub\logs\LogFiles\</code></td><td>Windows Event Viewer</td></tr>
+<tr><td>Azure App Service</td><td colspan="2">Kudu → LogFiles, or <code>az webapp log tail</code></td></tr>
+</tbody>
+</table>
+
+<pre>tail -f /var/log/nginx/access.log                      # watch requests live
+awk '{print $9}' access.log | sort | uniq -c | sort -rn  # count status codes
+grep " 50[0-9] " access.log                            # every 5xx today
+awk '{print $1}' access.log | sort | uniq -c | sort -rn | head   # top client IPs
+az webapp log tail --name myApp --resource-group myRG  # stream Azure logs</pre>
+
+<h3>8.4 Case study: debugging a 502 Bad Gateway</h3>
+<p><code>502</code> deserves its own walkthrough because it is the error you will hit most in cloud deployments and the message itself is useless. It means: <em>"I am a proxy. I forwarded your request to the server behind me. What came back was nothing, or garbage I could not parse."</em></p>
+
+<div class="box warn">
+  <span class="lbl">Critically</span>
+  <p><strong>502 is not your app returning an error.</strong> If your app returned a 500, the proxy would faithfully pass the 500 along. A 502 means the proxy could not get a valid HTTP response <em>at all</em>.</p>
+</div>
+
+<table>
+<thead><tr><th style="width:4%">#</th><th style="width:28%">Cause</th><th style="width:32%">Log signature</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><strong>App is not running</strong> (crashed at startup)</td><td><code>connect() failed (111: Connection refused)</code></td><td>Check app logs — usually a syntax error, missing env var, or failed DB connection at boot</td></tr>
+<tr><td>2</td><td><strong>Wrong port</strong> — proxy points at 3000, app listens on 8080</td><td><code>Connection refused</code> on an unused port</td><td>Align <code>proxy_pass</code> with the app's actual port</td></tr>
+<tr><td>3</td><td><strong>Bound to <code>127.0.0.1</code></strong> in a container</td><td><code>Connection refused</code></td><td>Bind <code>0.0.0.0</code>. <strong>The #1 cause on App Service and Container Apps.</strong></td></tr>
+<tr><td>4</td><td>App too slow</td><td><code>upstream timed out</code></td><td>Often surfaces as 504; raise <code>proxy_read_timeout</code> and fix the slow query</td></tr>
+<tr><td>5</td><td>App crashed mid-request (OOM)</td><td><code>upstream prematurely closed connection</code></td><td>Check memory limits, look for OOM-killer messages</td></tr>
+<tr><td>6</td><td>Response headers too large (giant cookie/JWT)</td><td><code>upstream sent too big header</code></td><td>Increase <code>proxy_buffer_size</code>, or shrink the token</td></tr>
+<tr><td>7</td><td>TLS mismatch — proxy speaks HTTPS to an HTTP-only backend</td><td>SSL handshake errors</td><td>Use <code>proxy_pass http://</code> for internal hops</td></tr>
+</tbody>
+</table>
+
+<pre># Diagnostic procedure - in this order
+ps aux | grep node                     # 1. Is the process alive at all?
+sudo ss -tulpn | grep 3000             # 2. Is anything listening?
+   #  nothing at all?        -&gt; cause #1
+   #  shows 127.0.0.1:3000?  -&gt; cause #3
+   #  shows 0.0.0.0:3000?    -&gt; app is fine, keep going
+curl -v http://127.0.0.1:3000/health   # 3. Can it answer, bypassing the proxy?
+   #  works? -&gt; the proxy config is the problem
+   #  fails? -&gt; the app is the problem
+tail -50 /var/log/nginx/error.log      # 4. What did the proxy try to do?
+az webapp log tail -n myApp -g myRG    # 5. On Azure App Service</pre>
+
+<div class="box warn">
+  <span class="lbl">The App Service 502 that catches everyone</span>
+  <p>App Service injects the port your app must listen on via the <code>PORT</code> environment variable and expects your app to honour it. Hardcoding <code>app.listen(3000)</code> produces an instant 502. Write <code>app.listen(process.env.PORT || 3000)</code>, or in Python <code>port = int(os.environ.get("PORT", 8000))</code>. Put this on a sticky note.</p>
+</div>
+
+<p><strong>At scale, text logs stop working.</strong> Structured logging emits JSON instead, so you can <em>query</em> logs rather than read them. Azure collects these into <strong>Log Analytics</strong>, queried with KQL, and <strong>Application Insights</strong> traces a single request across every service it touches — the industrial version of <code>tail -f</code>.</p>
+
+<pre>AppServiceHTTPLogs
+| where TimeGenerated &gt; ago(1h)
+| where ScStatus &gt;= 500
+| summarize count() by CsUriStem, ScStatus
+| order by count_ desc</pre>
+
+<h2>9. SSL/TLS and HTTPS in Practice</h2>
+
+<p>Over plain HTTP, your request travels as readable text through every device between you and the server: your router, your ISP, the café Wi-Fi access point, several backbone routers. <strong>Any of them can read it. Any of them can change it.</strong></p>
+
+<table>
+<thead><tr><th style="width:24%">Threat</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td><strong>Eavesdropping</strong></td><td>Someone reads your password, session cookie, private messages.</td></tr>
+<tr><td><strong>Tampering</strong></td><td>Someone modifies the response — injecting ads or malware, altering a transfer's account number.</td></tr>
+<tr><td><strong>Impersonation</strong></td><td>Someone pretends to <em>be</em> the server. You type your password into a perfect replica.</td></tr>
+</tbody>
+</table>
+
+<p>Encryption alone solves the first two. It does <strong>not</strong> solve the third — an encrypted connection to an attacker is still a connection to an attacker. That is why certificates exist. TLS provides <strong>confidentiality</strong> (symmetric AES encryption), <strong>integrity</strong> (message authentication codes), and <strong>authentication</strong> (certificates and public-key cryptography). SSL is its dead predecessor; everyone still says "SSL certificate" out of habit, but the protocol running is TLS 1.2 or 1.3.</p>
+
+<div class="box warn">
+  <span class="lbl">What the padlock does not mean</span>
+  <p>TLS says nothing about whether a site is <em>trustworthy</em>. A phishing site can have a perfectly valid certificate. The padlock means "you are securely connected to whoever owns this domain name" — not "this business is honest". Teach that to your relatives.</p>
+</div>
+
+<h3>9.1 Certificates and the chain of trust</h3>
+<p>Anyone can generate a key pair. How do you know the key you received belongs to <code>lums.edu.pk</code> and not to somebody sitting between you and it? A <strong>Certificate Authority</strong> verifies that whoever asked really controls the domain, then digitally signs a document saying so. That document is the certificate.</p>
+
+<p>The analogy is your passport: you could forge a document claiming to be you, but a border officer trusts your passport because it was issued by a government whose signature they recognise. You need not know the officer; you both trust the same issuer.</p>
+
+<pre class="ascii">[ Root CA certificate ]        pre-installed in your OS/browser (~150 of them),
+        | signs                kept offline in vaults, never touches your traffic
+        v
+[ Intermediate CA cert ]       the day-to-day workhorse
+        | signs                YOUR SERVER MUST SEND THIS ONE TOO
+        v
+[ Your server certificate ]    "lums.edu.pk", valid 90 days</pre>
+
+<p>Your browser walks up that chain. Arrive at a trusted root and the connection is trusted; break the chain and you get <code>NET::ERR_CERT_AUTHORITY_INVALID</code>.</p>
+
+<div class="box warn">
+  <span class="lbl">The #1 certificate installation mistake</span>
+  <p>Installing only your own certificate and forgetting the intermediate. Desktop Chrome often papers over it by fetching the missing link, so <em>it works on your laptop</em> — but mobile apps, <code>curl</code>, and Java clients fail. This is why Nginx wants <code>fullchain.pem</code> (your cert <strong>+</strong> intermediates), not <code>cert.pem</code>. Verify with <code>openssl s_client -connect example.com:443 -showcerts</code> or ssllabs.com/ssltest.</p>
+</div>
+
+<p><strong>By validation depth:</strong> DV (domain validated — minutes, automated, free) proves you control the domain; OV and EV add organisational and legal vetting for days/weeks and real money. Browsers stopped showing the green company name for EV years ago because studies showed nobody noticed. <strong>For nearly everything, DV is correct and free.</strong> <strong>By coverage:</strong> single domain; wildcard <code>*.example.com</code> (covers <code>api.</code>, <code>www.</code> — but <strong>not</strong> <code>a.b.example.com</code>); or SAN/multi-domain lists.</p>
+
+<h3>9.2 The handshake, without the mathematics</h3>
+<pre class="ascii">CLIENT                                                     SERVER
+ 1. ClientHello: "TLS 1.3, these ciphers,      ----&gt;
+    and I want 'api.example.com'" (SNI)
+                                               &lt;----   2. ServerHello + certificate chain
+ 3. Client verifies: signed by a CA I trust? not expired?
+    domain matches what I asked for? not revoked?
+ 4. Key exchange - both sides derive the SAME  &lt;---&gt;
+    symmetric key without ever sending it (Diffie-Hellman)
+ 5. Encrypted HTTP traffic from here on        &lt;---&gt;</pre>
+
+<p>Two things worth internalising. <strong>Asymmetric crypto is used only to establish trust and agree a key</strong>; bulk data is then encrypted with fast symmetric crypto, because public-key operations per byte would be unusable. And <strong>the session key is never transmitted</strong> — both sides compute it independently from exchanged public values, so an eavesdropper recording the entire handshake still cannot derive it. Because a fresh key is generated per session (<em>forward secrecy</em>), stealing the server's private key next year does not decrypt traffic recorded today.</p>
+
+<h3>9.3 Binding a certificate</h3>
+<p>"Binding" means telling the server which certificate to present for which hostname on which port.</p>
+
+<pre>server {
+    listen 443 ssl http2;
+    server_name example.com www.example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;  # cert + intermediates
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;    # NEVER share this
+
+    ssl_protocols       TLSv1.2 TLSv1.3;   # 1.0 and 1.1 are deprecated - do not enable
+    ssl_session_cache   shared:SSL:10m;    # resume sessions, skip full handshakes
+}</pre>
+
+<table>
+<thead><tr><th style="width:24%">Extension</th><th style="width:38%">Contains</th><th>Used by</th></tr></thead>
+<tbody>
+<tr><td><code>.pem</code> / <code>.crt</code> / <code>.cer</code></td><td>Base64 text, <code>-----BEGIN CERTIFICATE-----</code></td><td>Nginx, Apache, Linux tooling</td></tr>
+<tr><td><code>.key</code></td><td>The <strong>private key</strong>. Guard like a password.</td><td>Nginx, Apache</td></tr>
+<tr><td><code>.pfx</code> / <code>.p12</code></td><td>Certificate <strong>and</strong> key in one password-protected binary</td><td><strong>IIS and Azure App Service</strong></td></tr>
+</tbody>
+</table>
+
+<pre>openssl pkcs12 -export -out mycert.pfx -inkey privkey.pem -in fullchain.pem   # PEM -&gt; PFX</pre>
+
+<h3>9.4 Getting a certificate</h3>
+<p><strong>Let's Encrypt</strong> — free, automated, 90-day certificates. The short lifetime is deliberate: it forces automation, and automated renewal is how you stop having outages on a public holiday. <strong>Azure App Service Managed Certificate</strong> — free, auto-renewing, zero configuration, and the right default for this course.</p>
+
+<pre>sudo certbot --nginx -d example.com -d www.example.com   # edits config, installs, schedules renewal
+sudo certbot renew --dry-run                             # verify auto-renewal works
+
+az webapp config hostname add -g myRG --webapp-name myApp --hostname www.example.com
+az webapp config ssl create   -g myRG --name myApp --hostname www.example.com
+az webapp config ssl bind     -g myRG --name myApp \
+    --certificate-thumbprint &lt;THUMBPRINT&gt; --ssl-type SNI    # SNI is free; IP-based costs extra</pre>
+
+<p>Certificates for production apps you own should live in <strong>Azure Key Vault</strong> — centralised, access-controlled, audited, and importable directly into App Service and Application Gateway.</p>
+
+<h3>9.5 Forcing HTTPS</h3>
+<p>Having a certificate is not enough if port 80 still serves the site. Two layers:</p>
+
+<pre># Layer 1 - redirect. Nginx:
+server { listen 80; server_name example.com; return 301 https://$host$request_uri; }
+
+# Azure App Service - one flag, no code:
+az webapp update --resource-group myRG --name myApp --https-only true
+
+# Layer 2 - HSTS:
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;</pre>
+
+<p>A redirect still involves one unencrypted round trip, which an attacker on the network can hijack (an "SSL stripping" attack). <strong>HSTS</strong> closes that gap: the server tells the browser <em>"for the next year, refuse to talk to me over HTTP at all"</em>. After the first successful HTTPS visit, the browser rewrites <code>http://</code> internally before any packet leaves the machine.</p>
+
+<div class="box warn">
+  <span class="lbl">HSTS is a commitment, not a setting</span>
+  <p>Once a browser has cached it you <em>cannot</em> serve that domain over HTTP until the max-age expires, and you cannot cancel it remotely. If you set <code>includeSubDomains</code> and later need an internal subdomain on plain HTTP, you are stuck. Test with a short <code>max-age</code> (e.g. 300) first, then raise it.</p>
+</div>
+
+<p><strong>Mixed content:</strong> if your HTTPS page loads a script over <code>http://</code>, browsers block it outright and your page breaks silently. The DevTools console names the guilty resource.</p>
+
+<h2>10. File Transfer: FTP, FTPS, SFTP</h2>
+
+<p>You have built a website. The files are on your laptop; the server is in a datacentre. Something must move the bytes. Historically that was FTP. Today FTP is a security liability, and understanding <em>why</em> teaches something general about protocols.</p>
+
+<p><strong>FTP</strong> dates from 1971 — older than TCP/IP, older than email as you know it — designed for a research network where everyone knew everyone. <strong>The fatal flaw: everything is plaintext.</strong> Username, password, and every byte of every file travel unencrypted; anyone on the same network can capture credentials with a tool that takes thirty seconds to set up. <strong>The second flaw: two connections.</strong> FTP separates control from data, which makes it miserable for firewalls and NAT — <em>active</em> mode has the server connect back to the client (client firewalls block this; it almost always fails today), and <em>passive</em> mode works from behind NAT but requires a wide range of server ports to be open.</p>
+
+<h3>10.1 FTPS vs SFTP — not related, despite the names</h3>
+<table>
+<thead><tr><th style="width:22%"></th><th>FTPS</th><th>SFTP</th></tr></thead>
+<tbody>
+<tr><td>Full name</td><td>FTP <strong>S</strong>ecure</td><td><strong>SSH</strong> File Transfer Protocol</td></tr>
+<tr><td>Built on</td><td>Old FTP + a TLS wrapper</td><td>SSH — a completely different modern protocol</td></tr>
+<tr><td>Relation to FTP</td><td>It <strong>is</strong> FTP, encrypted</td><td><strong>Nothing to do with FTP at all</strong></td></tr>
+<tr><td>Ports</td><td>21 (explicit) or 990 (implicit) + a data port range</td><td><strong>22 only</strong> — one connection, one port</td></tr>
+<tr><td>Firewall friendliness</td><td>Awkward (port ranges)</td><td>Easy</td></tr>
+<tr><td>Authentication</td><td>Username/password + certificates</td><td>Password <strong>or SSH keys</strong> (much stronger)</td></tr>
+<tr><td>Verdict</td><td>Acceptable; used by Azure App Service</td><td><strong>Preferred wherever available</strong></td></tr>
+</tbody>
+</table>
+
+<p><strong>In one line:</strong> FTPS is old FTP wearing a TLS coat; SFTP is a file-transfer feature of SSH that happens to have a confusingly similar name. (<em>Explicit</em> FTPS starts on port 21 in the clear and issues <code>AUTH TLS</code> to upgrade — the modern default, and what App Service uses. <em>Implicit</em> assumes encryption from byte one on port 990 and is deprecated.)</p>
+
+<h3>10.2 SSH keys — do this instead of passwords</h3>
+<p>A key pair is two files: a <strong>private key</strong> you keep forever and never send anywhere, and a <strong>public key</strong> you copy onto every server you want to reach. The server challenges you to prove you hold the private key; you never transmit a secret.</p>
+
+<pre>ssh-keygen -t ed25519 -C "27100431@lums.edu.pk"
+   # -&gt; ~/.ssh/id_ed25519       PRIVATE. Never leaves your machine. Never commit to Git.
+   # -&gt; ~/.ssh/id_ed25519.pub   PUBLIC. Safe to share, paste anywhere.
+
+ssh-copy-id azureuser@20.51.3.44         # install the public key on a server
+sftp azureuser@20.51.3.44                # transfer over the same secure channel
+scp ./index.html azureuser@20.51.3.44:/var/www/html/
+rsync -avz ./site/ azureuser@20.51.3.44:/var/www/html/    # only copies what changed</pre>
+
+<p>Azure Linux VMs are created with SSH key authentication by default and password login disabled — good defaults, and now you know why.</p>
+
+<h3>10.3 What professionals actually use</h3>
+<p>Manual file transfer is an anti-pattern for application deployment. If a human drags files onto a server, the server's state depends on that human's memory and nobody can tell you what version is running.</p>
+
+<table>
+<thead><tr><th style="width:38%">Method</th><th>Use for</th></tr></thead>
+<tbody>
+<tr><td>Git push / GitHub Actions / Azure Pipelines</td><td>Application deployment. Reproducible, reviewable, revertable.</td></tr>
+<tr><td>Container images (ACR → App Service / AKS)</td><td>The whole environment, versioned as one artifact.</td></tr>
+<tr><td><code>az webapp deploy</code> / zip deploy</td><td>Scripted deployment of a build output.</td></tr>
+<tr><td>Blob Storage + <code>azcopy</code></td><td>Bulk data, backups, media, static sites.</td></tr>
+<tr><td>SFTP</td><td>Genuine ad-hoc movement, or partner data exchange.</td></tr>
+<tr><td>FTPS</td><td>Legacy systems and quick App Service fixes.</td></tr>
+<tr><td><strong>Plain FTP</strong></td><td><strong>Never.</strong></td></tr>
+</tbody>
+</table>
+
+<pre>az webapp config set -n myApp -g myRG --ftps-state FtpsOnly   # reject plain FTP
+az webapp config set -n myApp -g myRG --ftps-state Disabled   # best for CI/CD-deployed apps</pre>
+
+<p>Set <code>Disabled</code> on anything deployed through a pipeline. An unused open door is still an open door, and App Service FTP credentials are a common security-audit finding.</p>
+
+<h2>11. Bringing It to Azure</h2>
+
+<table>
+<thead><tr><th style="width:24%">Term</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><strong>Subscription</strong></td><td>The billing container. Everything you create costs money against one.</td></tr>
+<tr><td><strong>Resource Group</strong></td><td>A folder for related resources. Delete the group, delete everything inside. <strong>Use one per project</strong> — the cleanest way to avoid a surprise bill.</td></tr>
+<tr><td><strong>Region</strong></td><td>Physical location (<code>eastus</code>, <code>uaenorth</code>). Affects latency, cost, and data residency law.</td></tr>
+<tr><td><strong>App Service Plan</strong></td><td>The <em>hardware</em> — the VMs your apps run on. Sized by SKU (F1 free, B1 basic, P1v3 production).</td></tr>
+<tr><td><strong>Web App</strong></td><td>The <em>application</em> running on a plan. Many Web Apps can share one plan.</td></tr>
+</tbody>
+</table>
+
+<div class="box">
+  <span class="lbl">The relationship that confuses everyone</span>
+  <p>You pay for the <strong>App Service Plan</strong>, not the Web App. The plan is the rented apartment; Web Apps are furniture you put inside it. Ten Web Apps on one B1 plan cost the same as one — until they exhaust the CPU.</p>
+</div>
+
+<h3>11.1 Azure App Service</h3>
+<p>App Service is a <strong>managed web server</strong>. Microsoft runs the OS, patching, reverse proxy, load balancer, and TLS termination; you supply code. Every concept from §7–§9 is present — you just do not administer it.</p>
+
+<pre class="ascii">Internet  https://myapp.azurewebsites.net
+   v
+[ Azure front-end fleet ]  TLS termination (§9), load balancing (§6.3),
+   v                       custom domain routing (§7.2)
+[ Your app, on the PORT env var ]   &lt;- this part is yours
+   v
+[ Azure SQL / Blob / Redis ]</pre>
+
+<p>You get HTTPS on <code>*.azurewebsites.net</code> out of the box, auto-scaling on paid tiers, <strong>deployment slots</strong> (a full staging copy you warm up then <em>swap</em> into production with no downtime), built-in Application Insights and log streaming, and managed identity so your app reaches Key Vault and SQL without stored passwords.</p>
+
+<pre>az login
+az group create --name cs487-rg --location eastus
+az appservice plan create --name cs487-plan -g cs487-rg --sku B1 --is-linux
+az webapp create --name cs487-demo-27100431 -g cs487-rg --plan cs487-plan --runtime "PYTHON:3.11"
+az webapp up      --name cs487-demo-27100431 -g cs487-rg      # deploy current folder
+az webapp log tail --name cs487-demo-27100431 -g cs487-rg     # watch it start
+az webapp browse   --name cs487-demo-27100431 -g cs487-rg</pre>
+
+<p><strong>Never hardcode configuration.</strong> App settings arrive in your app as environment variables, read with <code>os.environ["API_KEY"]</code> or <code>process.env.API_KEY</code>. This is how one code artifact runs in dev, staging, and production unmodified — and how secrets stay out of your Git history.</p>
+
+<pre>az webapp config appsettings set -n myApp -g cs487-rg \
+  --settings DATABASE_URL="..." API_KEY="..." ENVIRONMENT="production"</pre>
+
+<p>The settings that map directly onto this module:</p>
+
+<pre>az webapp update     -g cs487-rg -n myApp --https-only true               # §9.5
+az webapp update     -g cs487-rg -n myApp --client-affinity-enabled false # §6.2
+az webapp config set -g cs487-rg -n myApp --ftps-state FtpsOnly           # §10.3
+az webapp config set -g cs487-rg -n myApp --min-tls-version 1.2           # §9.3
+az webapp cors add   -g cs487-rg -n myApp --allowed-origins https://mysite.com  # §3.5
+az webapp log config -g cs487-rg -n myApp \
+    --web-server-logging filesystem --application-logging filesystem --level information</pre>
+
+<p><strong>Kudu</strong> — every App Service has a hidden admin site at <code>https://&lt;app-name&gt;.scm.azurewebsites.net</code> giving you a file browser, a shell, environment variables, a process explorer, and raw logs. When a deployment behaves strangely, look there first.</p>
+
+<h3>11.2 Static website hosting on Azure Storage</h3>
+<p>If your site is purely static — HTML, CSS, JS, images, no server-side code — you do not need a web server at all. Azure Storage serves the files directly for cents per month at effectively unlimited scale. That covers more than you would think: React/Vue/Angular SPAs, documentation sites, portfolios, Hugo/Jekyll blogs, and any frontend that calls an API for its data.</p>
+
+<pre>az storage account create --name cs487static27100431 -g cs487-rg \
+    --location eastus --sku Standard_LRS --kind StorageV2
+
+az storage blob service-properties update --account-name cs487static27100431 \
+    --static-website --index-document index.html --404-document 404.html
+    # creates a special container literally named  $web
+
+az storage blob upload-batch --account-name cs487static27100431 \
+    --source ./dist --destination '$web' --overwrite
+
+az storage account show --name cs487static27100431 -g cs487-rg \
+    --query "primaryEndpoints.web" --output tsv</pre>
+
+<div class="box warn">
+  <span class="lbl">A classic five-minute time-waster</span>
+  <p>In bash and zsh, quote <code>'$web'</code> in single quotes or the shell expands it to an empty variable and your upload lands in the wrong place.</p>
+</div>
+
+<table>
+<thead><tr><th style="width:22%"></th><th>Storage static website</th><th>App Service</th><th>Static Web Apps</th></tr></thead>
+<tbody>
+<tr><td>Runs server code</td><td>No</td><td>Yes</td><td>Via Azure Functions</td></tr>
+<tr><td>Cost</td><td>Pennies</td><td>~$13+/mo (B1)</td><td>Free tier available</td></tr>
+<tr><td>Custom domain + TLS</td><td>Needs CDN/Front Door</td><td>Built in</td><td>Built in</td></tr>
+<tr><td>Best for</td><td>Bulk static assets, SPAs</td><td>APIs, server-rendered apps</td><td>Modern SPA + API together</td></tr>
+</tbody>
+</table>
+
+<h3>11.3 A complete reference architecture</h3>
+<pre class="ascii">                        [ Users ]
+                            |  HTTPS (§9)
+                  [ Azure Front Door ]  global routing, CDN, WAF, TLS
+              +-------------+--------------+
+              v                            v
+   [ Storage static website ]     [ App Service (API, stateless) ]   §6.2, §7.3
+   [ $web: HTML/CSS/JS       ]     [ auto-scaled 2..10             ]
+                                      |        |          |
+                                      v        v          v
+                              [ Azure SQL ] [ Redis ] [ Service Bus ]   §6.4
+                                 data      sessions     job queue
+                                                            |
+                                                            v
+                                                   [ Container Apps ]
+                                                    workers, scale to zero</pre>
+
+<p>Trace one request through that diagram and name what happens at each hop. If you can do that out loud, you have understood this module.</p>
+
+<h2>12. Hands-On Labs</h2>
+
+<h3>Lab 1 — Read the web (30 min, no installation)</h3>
+<p>Open <a href="https://www.lums.edu.pk">lums.edu.pk</a> with DevTools → Network and reload. From the panel, answer: how many requests did one page load produce? What is the <code>Content-Type</code> of the first (document) response? Find a request that returned <code>304</code> — why did that save bandwidth? What TLS version was used (Security tab)? Then run <code>curl -I https://www.lums.edu.pk</code>, <code>curl -i https://httpbin.org/status/404</code>, and <code>curl -s https://httpbin.org/headers</code>.</p>
+<p><strong>Deliverable:</strong> a table of five requests — URL, method, status, content type, size — with one sentence each on why that status was returned.</p>
+
+<h3>Lab 2 — Talk to an API (45 min)</h3>
+<pre>curl -s https://api.github.com/users/octocat | python -m json.tool
+curl -X POST https://httpbin.org/post -H "Content-Type: application/json" \
+     -d '{"rollNo":"27100431","course":"CS487"}'
+curl -X POST https://httpbin.org/post -H "Content-Type: application/json" \
+     -d "{'bad': 'quotes',}"                         # deliberately broken - read the error
+curl -s https://httpbin.org/bearer -H "Authorization: Bearer test123"</pre>
+<p><strong>Deliverable:</strong> design a REST API for a <strong>library</strong> with resources <code>books</code>, <code>members</code>, and <code>loans</code>. Give the full method + path table (at least 10 endpoints), one example request body, one success response, and one error response in the shape shown in §4.3.</p>
+
+<h3>Lab 3 — Run a web server and break it on purpose (60 min)</h3>
+<pre>mkdir -p site &amp;&amp; echo "&lt;h1&gt;Hello from CS 487&lt;/h1&gt;" &gt; site/index.html
+docker run -d --name web -p 8080:80 -v "$(pwd)/site":/usr/share/nginx/html:ro nginx
+curl -i http://localhost:8080
+docker logs web                              # your access log
+docker exec -it web cat /etc/nginx/nginx.conf</pre>
+<p>Then: (1) change the port mapping to 8081 and confirm 8080 stops working; (2) add a second virtual host and test it with <code>curl -H "Host: site2.local" http://localhost:8080</code>; (3) delete a semicolon and run <code>nginx -t</code>, reading the error; (4) add <code>location /api/ { proxy_pass http://127.0.0.1:3000/; }</code> with <strong>nothing</strong> running on 3000, then request it. <strong>You now have a 502 you created yourself.</strong> Find it in the error log and identify which of the seven causes in §8.4 it is.</p>
+<p><strong>Deliverable:</strong> screenshots of the 502, the matching error log line, and a one-paragraph diagnosis.</p>
+
+<h3>Lab 4 — Deploy to App Service, then prove statelessness (90 min)</h3>
+<pre># app.py
+import os
+from flask import Flask, jsonify
+app = Flask(__name__)
+
+@app.get("/")
+def home():    return "&lt;h1&gt;CS 487 - deployed to Azure&lt;/h1&gt;"
+
+@app.get("/health")
+def health():  return jsonify(status="ok")
+
+if __name__ == "__main__":
+    # Read the port from the environment - see the §8.4 warning
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))</pre>
+<p>Deploy with <code>az webapp up</code> (§11.1) and confirm <code>/health</code> returns JSON. Then turn on <code>--https-only</code> and verify <code>curl -I http://...</code> issues a <code>301</code>; add an app setting and read it in code; stream logs with <code>az webapp log tail</code> while hitting the site; find your files in Kudu. <strong>Then deliberately break it:</strong> hardcode <code>port=3000</code>, redeploy, observe the 502, and fix it.</p>
+<p><strong>Stretch — make §6.2 visible.</strong> Add an in-memory counter at <code>/count</code>, scale to 3 instances with affinity off, hit it twenty times, and watch the number jump around unpredictably. Explain in writing why, and describe how Azure Cache for Redis would fix it.</p>
+<p><strong>Deliverable:</strong> the live URL, a screenshot of the 301, the log excerpt showing the 502 you caused and the line that fixed it, and the counter explanation.</p>
+
+<h2>13. Troubleshooting Quick Reference</h2>
+
+<table>
+<thead><tr><th style="width:30%">What you see</th><th style="width:36%">Most likely cause</th><th>First thing to check</th></tr></thead>
+<tbody>
+<tr><td><code>Connection refused</code></td><td>Nothing listening on that port</td><td><code>ss -tulpn | grep &lt;port&gt;</code></td></tr>
+<tr><td><code>Connection timed out</code></td><td>A firewall/NSG silently dropping packets</td><td>NSG rules, then OS firewall</td></tr>
+<tr><td><code>ERR_NAME_NOT_RESOLVED</code></td><td>DNS failure</td><td><code>nslookup yourdomain.com</code></td></tr>
+<tr><td><code>400</code></td><td>Malformed body or missing field</td><td>Validate your JSON</td></tr>
+<tr><td><code>401</code> / <code>403</code></td><td>Missing/expired token · authenticated but not permitted</td><td>Is <code>Authorization</code> actually being sent? Then role assignment</td></tr>
+<tr><td><code>404</code></td><td>Wrong path, or wrong <code>root</code>/<code>DocumentRoot</code></td><td>Does the file exist where the config says?</td></tr>
+<tr><td><code>413</code></td><td>Upload exceeds proxy limit</td><td><code>client_max_body_size</code></td></tr>
+<tr><td><code>500</code></td><td>Unhandled exception in <strong>your</strong> code</td><td>Application log / stack trace</td></tr>
+<tr><td><code>502</code></td><td>Proxy cannot reach the app</td><td>§8.4 — usually not running, or bound to <code>127.0.0.1</code></td></tr>
+<tr><td><code>504</code></td><td>App too slow</td><td>Find the slow query; raise timeouts as a stopgap</td></tr>
+<tr><td><code>NET::ERR_CERT_*</code></td><td>Expired / wrong domain / missing intermediate</td><td><code>openssl s_client -showcerts</code></td></tr>
+<tr><td>Works in curl, fails in browser</td><td><strong>CORS</strong></td><td>§3.5 — check <code>Access-Control-Allow-Origin</code></td></tr>
+<tr><td>Works locally, 502 on Azure</td><td>Hardcoded port</td><td>Use <code>process.env.PORT</code> / <code>os.environ["PORT"]</code></td></tr>
+<tr><td>Works on the VM, not from outside</td><td>Bound to <code>127.0.0.1</code></td><td>Bind <code>0.0.0.0</code>, then check the NSG</td></tr>
+<tr><td>Users randomly logged out</td><td>Stateful app across multiple instances</td><td>§6.2 — externalise session state</td></tr>
+<tr><td><code>EADDRINUSE</code></td><td>Port already taken</td><td><code>lsof -i :&lt;port&gt;</code> and kill it</td></tr>
+</tbody>
+</table>
+
+<div class="box key">
+  <span class="lbl">Universal diagnostic ladder</span>
+  <p>Work outward from the app, and do not skip steps — the answer is usually two rungs below where you started guessing.</p>
+<pre style="margin:4pt 0 0">1. Is the process running?           ps aux | grep &lt;app&gt;
+2. Is it listening, and on what?     ss -tulpn
+3. Does it answer locally?           curl -v http://127.0.0.1:&lt;port&gt;/health
+4. Does the proxy reach it?          tail -f /var/log/nginx/error.log
+5. Is the port open at the network?  NSG rules, OS firewall
+6. Does DNS point at the right IP?   nslookup / dig
+7. Is the certificate valid?         openssl s_client -connect host:443
+8. What did the client actually send? Browser DevTools -&gt; Network</pre>
+</div>
+
+<h2>14. Self-Check</h2>
+<p class="lead">Answer in your own words before reading on. These are the eight that matter most.</p>
+
+<div class="qa"><span class="q">1. What actually distinguishes 401 from 403?</span>
+<span class="a">401 means <em>unauthenticated</em> — you have not proven who you are. 403 means <em>unauthorised</em> — your identity is established but lacks permission.</span></div>
+
+<div class="qa"><span class="q">2. Why is it dangerous to expose a destructive action over GET?</span>
+<span class="a">GET is defined as <em>safe</em>, so browsers pre-fetch it, proxies cache it, and crawlers follow it automatically. A <code>GET /deleteUser?id=5</code> link will eventually be triggered by a bot with no human involved.</span></div>
+
+<div class="qa"><span class="q">3. What does idempotency buy you in a distributed system?</span>
+<span class="a">Safe retries. A timeout does not tell you whether the server processed the request. If the operation is idempotent you simply retry; if not, retrying risks a double charge or duplicate order.</span></div>
+
+<div class="qa"><span class="q">4. One IP, three HTTPS sites. How does the server pick the right certificate?</span>
+<span class="a">SNI. The client sends the hostname in plaintext during the ClientHello, before encryption begins, so the server can select the matching certificate.</span></div>
+
+<div class="qa"><span class="q">5. Why is statelessness a prerequisite for elastic scaling?</span>
+<span class="a">Auto-scaling adds and destroys instances continuously. If an instance holds a session in memory, destroying it destroys the session, and a new instance cannot serve requests assuming prior context. Stateless instances are interchangeable.</span></div>
+
+<div class="qa"><span class="q">6. Give three reasons to run Nginx in front of a Node app.</span>
+<span class="a">Any three of: TLS termination in one place; the app avoids running as root on 443; static files served without touching the app process; buffering slow clients; load balancing; rate and size limits before code executes; zero-downtime deploys by switching upstreams.</span></div>
+
+<div class="qa"><span class="q">7. Why is the intermediate certificate needed, and why does forgetting it still "work on my laptop"?</span>
+<span class="a">Clients must build an unbroken chain to a trusted root. Desktop browsers often fetch a missing intermediate automatically, masking the problem — but curl, mobile apps, and Java clients do not, and they fail. Serve <code>fullchain.pem</code>.</span></div>
+
+<div class="qa"><span class="q">8. Your app runs locally but returns 502 on App Service. Most likely cause?</span>
+<span class="a">A hardcoded port. App Service tells your app which port to bind via <code>PORT</code> and routes only there. <code>app.listen(3000)</code> gives an instant 502; <code>app.listen(process.env.PORT || 3000)</code> fixes it. Related: binding <code>127.0.0.1</code> instead of <code>0.0.0.0</code>.</span></div>
+
+<h2>15. Further Reading</h2>
+<ul>
+<li><strong>HTTP</strong> — MDN Web Docs: <code>developer.mozilla.org/en-US/docs/Web/HTTP</code> (status codes and CORS sections especially)</li>
+<li><strong>Nginx</strong> — beginner's guide: <code>nginx.org/en/docs/beginners_guide.html</code></li>
+<li><strong>TLS</strong> — Mozilla SSL config generator (<code>ssl-config.mozilla.org</code>) generates a hardened block for you; SSL Labs (<code>ssllabs.com/ssltest</code>) grades any live site A+ to F and explains every deduction — the fastest TLS education available</li>
+<li><strong>Azure</strong> — App Service overview and configuration: <code>learn.microsoft.com/azure/app-service/</code>; static websites: <code>learn.microsoft.com/azure/storage/blobs/storage-blob-static-website</code></li>
+<li><strong>Practice tools</strong> — <code>httpbin.org</code> (request sandbox), <code>jsonlint.com</code> (validator), <code>jwt.io</code> (decode a token)</li>
+<li><strong>Certification alignment</strong> — this module supports material assessed in AZ-900 (cloud concepts), AZ-104 (networking, NSGs), and AZ-204 (App Service, deployment, configuration)</li>
+</ul>
+
+<div class="footer">
+Module 2 · CS 487 / CS 5603 Cloud Development · Fall 2026 · Lahore University of Management Sciences<br>
+Questions belong in office hours or on the LMS forum — see the course outline's communication policy.
+</div>
+
+</body>
+</html>
